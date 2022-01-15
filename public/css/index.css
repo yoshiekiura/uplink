@@ -1,0 +1,270 @@
+body { 
+    background-color: #fff;
+}
+header {
+    position: fixed;
+    top: 0px;left: 0px;right: 0px;
+    line-height: 65px;
+    z-index: 3;
+}
+header #mobileMenuBtn { display: none; }
+header .logo {
+    margin: 0;
+    float: left;
+    width: 20%;
+    text-align: center;
+}
+header .logo img {
+    margin: 0;
+    height: 40px;
+    position: relative;
+    top: 7px;
+}
+header .menu {
+    float: left;
+    width: 60%;
+    text-align: center;
+}
+header .menu li {
+    display: inline-block;
+    list-style: none;
+    padding: 0px 25px;
+}
+header .menu a {
+    color: #666;
+}
+header .action {
+    float: left;
+    width: 20%;
+    text-align: center;
+}
+
+.title-section {
+    background-color: #ff0066;
+    position: absolute;
+    top: 65px;left: 0px;right: 0px;
+    color: #fff;
+    line-height: 200px;
+    padding: 0px 55px;
+    box-sizing: border-box;
+}
+.title-section h2 {
+    color: #fff;
+    margin: 0;
+    font-size: 28px;
+    font-family: RobotoBold;
+    text-align: center;
+}
+
+.content-section {
+    position: absolute;
+    top: 265px;left: 0px;right: 0px;
+}
+.content-section p {
+    line-height: 30px;
+}
+
+.bg-tab {
+    position: absolute;
+    top: 65px;left: 0px;right: 0px;
+    background-color: #ff0066;
+    height: 500px;
+    border-bottom-left-radius: 55px;
+    border-bottom-right-radius: 55px;
+}
+.bg-tab h2,.bg-tab div { color: #fff; }
+.bg-tab h2 {
+    font-family: ProBold;
+    font-size: 32px;
+    margin-top: 95px;
+}
+.bg-tab div {
+    font-size: 18px;
+    line-height: 35px;
+    display: inline-block;
+    width: 80%;
+}
+.bg-tab button {
+    margin: 0px 10px;
+    border-radius: 900px;
+    margin-top: 35px;
+    padding: 0px 40px;
+    color: #fff;
+    border: 3px solid #fff;
+}
+.bg-tab button:hover {
+    background-color: #fff;
+    color: #ff0066;
+}
+
+.tab-container {
+    position: absolute;
+    /* top: 480px;left: 25%;right: 25%; */
+    top: 480px;left: 0%;right: 0%;
+}
+.tab-container .button-area .button {
+    font-size: 18px;
+    padding: 30px 0px 0px 0px;
+}
+.tab-container .button-area .button hr { margin-top: 20px; }
+.tab-container .button-area .button.active {
+    color: #ff0066;
+    font-family: ProBold;
+}
+.tab-container .button-area .button.active hr {
+    color: #ff0066;
+}
+.tab-container .button-area .button.activse {
+    background-color: #ff0066;
+    color: #fff;
+}
+
+.contact-widget {
+    position: fixed;
+    bottom: 0px;right: 5%;
+    width: 320px;
+    background-color: #fff;
+    z-index: 5;
+}
+.contact-widget .header {
+    padding: 15px 30px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    font-family: RobotoBold;
+    font-size: 18px;
+}
+.contact-widget .content {
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+.contact-widget .content .wrap .item {
+    font-size: 16px;
+    padding: 15px 25px;
+    margin-bottom: 15px;
+    width: 80%;
+}
+.contact-widget .content .wrap .item .icon {
+    font-size: 25px;
+    color: #2ecc71;
+}
+.contact-widget .content .wrap .item .keterangan {
+    margin-top: 5px;
+}
+.contact-widget a { color: #666; }
+.contact-widget .contact-list {
+    border-top: 1px solid #ddd;
+}
+.contact-widget .contact-list .item {
+    line-height: 45px;
+}
+
+footer {
+    background-color: #ff0066;
+    color: #fff;
+}
+
+footer .logo {
+    font-family: ProBold;
+    font-size: 35px;
+}
+footer a {
+    color: #fff;
+}
+footer .teks-transparan {
+    color: #eee;
+}
+footer li {
+    list-style: none;
+    padding: 10px 0px;
+}
+footer h3 {
+    font-family: ProBold;
+    font-size: 22px;
+    color: #fff;
+    margin-top: 0px;
+}
+footer .logo img {
+    width: 250px;
+}
+footer .icon {
+    display: inline-block;
+    margin: -2px;
+    width: 35px;
+}
+
+
+@media (max-width: 480px) {
+    .contact-widget {
+        right: 0px;
+        width: 100%;
+    }
+    header .logo {
+        float: left;
+        margin-left: 5%;
+    }
+    header #mobileMenuBtn {
+        display: block;
+        float: right;
+        margin-right: 5%;
+        font-size: 21px;
+    }
+    header .mobile-menu {
+        position: fixed;
+        width: 100%;
+        top: 65px;left: 0px;bottom: 0px;
+        left: -155%;
+        background-color: #fff;
+        transition: 0.6s;
+    }
+    header ,.mobile-menu.active {
+        left: 0%;
+    }
+    header .mobile-menu .menu,
+    header .mobile-menu .action {
+        float: none;
+        width: 100%;
+        text-align: left;
+    }
+    header .mobile-menu .menu li {
+        display: block;
+    }
+    header .mobile-menu .action {
+        margin: 0px 20px;
+    }
+    header .mobile-menu .action button {
+        width: 50% !important;
+        height: 55px;
+    }
+
+    .bg-tab {
+        height: 455px;
+        border-radius: 0px !important;
+    }
+    .bg-tab h2 {
+        margin-top: 60px;
+        font-size: 25px;
+    }
+    .bg-tab div {
+        font-size: 17px;
+        line-height: 28px;
+        width: 90%;
+    }
+    .tab-container > div {
+        width: 90%;
+    }
+
+    footer {
+        margin-bottom: 50px;
+    }
+    footer .bagi {
+        display: block;
+        width: 100%;
+        margin-bottom: 25px;
+    }
+    footer > .wrap {
+        margin: 10%;
+    }
+    footer .about {
+        margin-bottom: 55px;
+    }
+}

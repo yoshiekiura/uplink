@@ -1,0 +1,144 @@
+body {
+    background-color: #3f6c8a60;
+}
+a {
+    color: var(--primaryColor);
+}
+
+header {
+    position: fixed;
+    top: 0px;left: 0px;right: 0px;
+    line-height: 80px;
+    background-color: #fff;
+    z-index: 4;
+    border-bottom: 0.5px solid var(--primaryColor);
+}
+header h1 {
+    float: left;
+    margin: 0;
+    margin-left: 5%;
+    font-size: 26px;
+    color: var(--primaryColor);
+    font-family: GrotesqueExtraBold;
+}
+header nav {
+    float: right;
+    margin-right: 5%;
+    vertical-align: top;
+}
+header nav .item {
+    display: inline-block;
+    list-style: none;
+    margin-left: 10px;
+}
+header nav .item.circle {
+    width: 55px;
+    line-height: 55px;
+    border-radius: 900px;
+    background-color: #3f6c8a20;
+    color: #3f6c8a;
+    text-align: center;
+}
+header nav .item .counter {
+    position: fixed;
+    top: 15px;
+    background-color: #e74c3c;
+    color: #fff;
+    display: inline-block;
+    width: 25px;
+    line-height: 25px;
+    border-radius: 55px;
+}
+header nav .item.text {
+    color: #555;
+    font-size: 20px;
+}
+
+nav.menu {
+    position: fixed;
+    top: 160px;left: 5%;
+    background-color: #fff;
+    width: 25%;
+    z-index: 4;
+}
+nav.menu li {
+    list-style: none;
+    padding: 20px 35px;
+    font-size: 18px;
+}
+nav.menu li.active {
+    background-color: var(--primaryColor);
+    color: #fff;
+}
+nav.menu li div {
+    display: inline-block;
+}
+nav.menu li .icon { width: 40px; }
+
+.content {
+    position: absolute;
+    top: 160px;left: 35%;right: 5%;
+    padding-bottom: 100px;
+    z-index: 3;
+}
+
+.gember {
+    position: fixed;
+    left: 0px;right: 0px;
+    width: 100%;
+    height: 150px;
+    opacity: 0.6;
+    background-size: cover;
+    z-index: 1;
+}
+.gember.top {
+    top: 80px;
+    background: url(../images/wave.png);
+    background-position: top right;
+    transform: rotateZ(180deg);
+    block-size: 100% 150px;
+    display: none;
+}
+.gember.bottom {
+    bottom: 0px;
+    background: url(../images/wave.png);
+    background-size: 100% 150px;
+    background-position: top right;
+}
+
+@media (max-width: 480px) {
+    .gember.bottom {
+        bottom: 55px;
+    }
+    .content {
+        top: 100px;left: 5%;
+    }
+    header nav {
+        position: fixed;
+        bottom: 0px;left: 0px;right: 0px;
+        border-top: 1px solid #ddd;
+        margin: 0px;
+        z-index: 5;
+        background-color: #fff;
+        text-align: center;
+    }
+    header nav .item {
+        margin: 0px 20px;
+    }
+    header nav .item.text {
+        display: none;
+    }
+    header #tblMenu {
+        margin-right: 5%;
+        font-size: 20px;
+    }
+
+    nav.menu {
+        top: 80px;left: 120%;bottom: 80px;
+        width: 100%;
+        border-radius: 0px;
+        z-index: 2;
+        transition: 0.4s;
+    }
+    nav.menu.active { left: 0%; }
+}

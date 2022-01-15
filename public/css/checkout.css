@@ -1,0 +1,68 @@
+body {
+    background-color: #f8f7f7;
+}
+header {
+    background: linear-gradient(180deg, #0285F1 0%, #00DEF3 77.08%);
+    position: fixed;
+    left: 30%;right: 30%;top: 0%;
+    line-height: 65px;
+    color: #fff;
+    z-index: 1;
+}
+header #back { padding-top: 5px; }
+header .title,h1,h2,h3,h4 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: bold;
+    color: #555;
+}
+header .title { color: #fff; }
+
+textarea.box {
+    border: none;
+    border-bottom: 2px solid #ddd;
+    border-radius: 0px;
+    height: 50px;
+    font-size: 15px;
+    padding: 0px;
+}
+textarea.box:focus {
+    box-shadow: none;
+    border-bottom: 2px solid #00DEF3;
+}
+
+.Content {
+    position: absolute;
+    top: 65px;left: 30%;right: 30%;
+}
+.Content h3 {
+    font-weight: 600;
+    font-size: 16px;
+}
+.Content .Product .title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+}
+.Content .Product .qty .box,
+.Content .Product .qty .btn {
+    height: 30px;
+    line-height: 30px;
+}
+.Content .Product .qty .box {
+    padding: 0px;
+    margin: 0px;
+    border: none;
+    text-align: center;
+}
+.Content .Product .qty .btn {
+    background-color: #ddd;
+    cursor: pointer;
+    font-size: 15px;
+    border-radius: 5px;
+}
+
+@media (max-width: 480px) {
+    .Content,header {
+        left: 0px;right: 0px;
+    }
+}
