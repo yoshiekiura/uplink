@@ -12,6 +12,11 @@ class LinkController extends Controller
     public static function authenticate() {
         // 
     }
+    public function get(Request $request) {
+        $token = $request->token;
+        $user = UserController::get($token)->first();
+        $links = Link::where('user_id', $user->id)->get();
+    }
     public function store(Request $request) {
         $customMessagesValidator = ['required' => ":attribute harus diisi",];
         $validateData = Validator::make($request->all(), [
@@ -24,10 +29,12 @@ class LinkController extends Controller
         }
 
         $user = UserController::get($request->token)->first();
+        $meta = get_meta_tags($request->url);
         $toSave = [
             'user_id' => $user->id,
             'category_id' => $request->category_id,
             'title' => $request->title,
+            'description' => $meta['description'],
             'url' => $request->url,
             'priority' => 0
         ];
@@ -47,10 +54,16 @@ class LinkController extends Controller
             'data' => $saveData
         ]);
     }
-    public function delete() {
+    public function delete(Request $request) {
         $id = $request->id;
         $data = Link::where('id', $id);
         $link = $data->first();
+        if ($link == "") {
+            return response()->json([
+                'status' => 404,
+                'message' => "Tidak dapat menemukan link dengan ID ".$id
+            ]);
+        }
         $user = UserController::get($request->token)->first();
 
         if ($user->id != $link->user_id) {
@@ -62,6 +75,6 @@ class LinkController extends Controller
             $deleteImage = Storage::delete('public/link_image/'.$link->image);
         }
 
-        return response()->json(['status' => 200, 'Link berhasil dihapus']);
+        return response()->json(['status' => 200, 'message' => 'Link berhasil dihapus']);
     }
 }

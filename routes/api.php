@@ -36,3 +36,37 @@ Route::group(['prefix' => "link"], function () {
     Route::post('delete', "LinkController@delete")->middleware('User');
     Route::post('/', "LinkController@get")->middleware('User');
 });
+
+Route::group(['prefix' => "support"], function () {
+    Route::post('store', "SupportController@store")->middleware('User');
+    Route::post('update', "SupportController@update")->middleware('User');
+    Route::post('delete', "SupportController@delete")->middleware('User');
+    Route::post('/', "SupportController@get")->middleware('User');
+});
+
+Route::group(['prefix' => "visitor"], function () {
+    Route::post('register', "VisitorController@register");
+});
+
+Route::group(['prefix' => "video"], function () {
+    Route::post('store', "VideoController@store")->middleware('User');
+    Route::post('update', "VideoController@update")->middleware('User');
+    Route::post('delete', "VideoController@delete")->middleware('User');
+    Route::post('priority', "VideoController@priority")->middleware('User');
+    Route::post('/', "VideoController@get")->middleware('User');
+    Route::post('/{id}', "VideoController@getByID")->middleware('User');
+});
+
+Route::group(['prefix' => "ongkir"], function () {
+    Route::get('province', "RajaongkirController@province");
+    Route::get('province/{provinceID}/city/{cityID?}', "RajaongkirController@city");
+    Route::get('cost', "RajaongkirController@cost");
+    Route::get('courier', "RajaongkirController@courier");
+});
+
+Route::group(['prefix' => "event"], function () {
+    Route::post('store', "EventController@store")->middleware('User');
+    Route::post('update', "EventController@update")->middleware('User');
+    Route::post('delete', "EventController@delete")->middleware('User');
+    Route::post('/', "EventController@get")->middleware('User');
+});

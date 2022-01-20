@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Link extends Model
+class Event extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id','category_id','title','url','image','priority','description'
+        'user_id','category_id','title','description','cover','platform','platform_url',
+        'date','duration','price','price_sale','quantity','custom_message',
+        'action_button_text'
     ];
 
     public function category() {

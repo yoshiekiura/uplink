@@ -27,6 +27,7 @@ class UserController extends Controller
         }
         $user = $data->first();
         if ($user != "") {
+			$user->icon = asset('storage/user_icon/'.$user->icon);
             $response['status'] = 200;
             $response['data'] = $user;
         }

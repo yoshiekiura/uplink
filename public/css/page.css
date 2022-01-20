@@ -12,7 +12,7 @@
 }
 .SearchBox {
     position: fixed;
-    top: 10px;left: 2.5%;right: 2.5%;
+    top: 10px;left: 5%;right: 5%;
     background-color: #fff;
     border: 1px solid #0285F1;
     border-radius: 900px;
@@ -68,6 +68,9 @@
 .Content .Menu .item {
     text-align: center;
     color: #999;
+}
+.Content .Menu .item.active {
+    color: #00DEF3;
 }
 .Content .Categories h3 {
     color: #444;

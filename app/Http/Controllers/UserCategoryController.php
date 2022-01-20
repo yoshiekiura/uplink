@@ -10,9 +10,29 @@ class UserCategoryController extends Controller
 {
     public function get(Request $request) {
         $token = $request->token;
-        $user = UserController::get($token)->with('data_categories')->first();
-        $categories = $user->data_categories;
-        unset($user->data_categories);
+        $with = $request->with;
+        $relation = 'user_categories';
+        if ($with != "") {
+            $relation .= ".".$with;
+        }
+
+        $availableRelation = ['links','events'];
+        if (!in_array($with, $availableRelation)) {
+            return response()->json([
+                'status' => 501,
+                'message' => "Opsi data tidak tersedia"
+            ]);
+        }
+
+        $user = UserController::get($token)->with($relation)->first();
+        $categories = $user->user_categories;
+        unset($user->user_categories);
+
+		$i = 0;
+		foreach ($categories as $category) {
+			$iPP = $i++;
+			$categories[$iPP]->image = asset('storage/user_category_images/'.$category->image);
+		}
 
         return response()->json([
             'status' => 200,
@@ -24,19 +44,30 @@ class UserCategoryController extends Controller
         ]);
     }
     public function store(Request $request) {
-        $customMessagesValidator = ['required' => ":attribute harus diisi",];
-        $validateData = Validator::make($request->all(), ['name' => 'required','token' => 'required'], $customMessagesValidator);
+        $customMessagesValidator = [
+            'required' => "Bidang :attribute harus diisi",
+            'image' => "Bidang :attribute harus berupa gambar"
+        ];
+        $validateData = Validator::make($request->all(), ['name' => 'required','token' => 'required','image' => 'image'], $customMessagesValidator);
         if ($validateData->fails()) {
             return response()->json(['status' => 500, 'data' => $validateData->messages()]);
         }
 
         $user = UserController::get($request->token)->first();
-        
-        $saveData = UserCategory::create([
+        $toSave = [
             'user_id' => $user->id,
             'name' => $request->name,
             'has_used' => 0
-        ]);
+        ];
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageFileName = time()."_".$image->getClientOriginalName();
+            $toSave['image'] = $imageFileName;
+            $image->storeAs('public/user_category_images', $imageFileName);
+        }
+        
+        $saveData = UserCategory::create($toSave);
 
         return response()->json(['status' => 200, 'message' => "Berhasil menambahkan kategori"]);
     }

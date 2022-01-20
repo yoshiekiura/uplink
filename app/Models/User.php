@@ -19,7 +19,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name','email','password','username','phone','categories','icon','bio',
-        'background_image','token'
+        'background_image','token','pro_expiration'
     ];
 
     /**
@@ -37,7 +37,7 @@ class User extends Authenticatable
     public function links() {
         return $this->hasMany('App\Models\Link', 'user_id');
     }
-    public function data_categories() {
+    public function user_categories() {
         return $this->hasMany('App\Models\UserCategory', 'user_id');
     }
 

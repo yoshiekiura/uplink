@@ -10,4 +10,11 @@ class UserCategory extends Model
     use HasFactory;
 
     protected $fillable = ['user_id','name','image','has_used'];
+
+    public function links() {
+        return $this->hasMany('App\Models\Link', 'category_id');
+    }
+    public function videos() {
+        return $this->hasMany('App\Models\Video', 'category_id');
+    }
 }

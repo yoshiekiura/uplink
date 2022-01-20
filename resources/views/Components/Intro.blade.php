@@ -78,7 +78,13 @@
     const sel = dom => document.querySelector(dom);
     sel(".Introduction form").onsubmit = function (e) {
         let name = sel(".Introduction form #nama").value;
-        sel(".Introduction").classList.remove('active');
+        let email = sel(".Introduction form #email").value;
+
+        let names = name.split(" ");
+        sel(".Introduction .wrap").innerHTML = `<h2>Halo, ${names[0]}</h2><p>Silahkan melanjutkan</p>`;
+        setTimeout(() => {
+            sel(".Introduction").classList.remove('active');
+        }, 2000);
         e.preventDefault();
     }
     const closeIntro = () => {

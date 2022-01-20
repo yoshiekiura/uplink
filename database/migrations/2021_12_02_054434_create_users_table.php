@@ -25,6 +25,7 @@ class CreateUsersTable extends Migration
             $table->text('bio')->nullable();
             $table->string('background_image');
             $table->string('token')->nullable();
+            $table->datetime('pro_expiration')->nullable();
             $table->timestamps();
         });
     }

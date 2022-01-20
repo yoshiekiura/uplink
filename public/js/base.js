@@ -33,7 +33,9 @@ const bindDivWithImage = () => {
         div.style.backgroundSize = 'cover';
     });
 }
-bindDivWithImage();
+if (typeof dontBindDivImage !== undefined) {
+    bindDivWithImage();
+}
 
 // alert
 let alerts = selectAll('.alert .ke-kanan');
