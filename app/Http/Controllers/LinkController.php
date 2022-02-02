@@ -12,10 +12,19 @@ class LinkController extends Controller
     public static function authenticate() {
         // 
     }
-    public function get(Request $request) {
+    public function get(Request $request, $categoryID = null) {
         $token = $request->token;
-        $user = UserController::get($token)->first();
-        $links = Link::where('user_id', $user->id)->get();
+        if ($categoryID == null) {
+            $user = UserController::get($token)->first();
+            $links = Link::where('user_id', $user->id)->get();
+        } else {
+            $links = Link::where('category_id', $categoryID)->get();
+        }
+        return response()->json([
+            'status' => 200,
+            'message' => "Data link berhasil diambil",
+            'data' => $links
+        ]);
     }
     public function store(Request $request) {
         $customMessagesValidator = ['required' => ":attribute harus diisi",];

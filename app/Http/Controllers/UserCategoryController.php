@@ -2,45 +2,77 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
 use Validator;
+use App\Models\User;
 use App\Models\UserCategory;
 use Illuminate\Http\Request;
 
 class UserCategoryController extends Controller
 {
-    public function get(Request $request) {
-        $token = $request->token;
+    public function get(Request $request, $id = null) {
+        $categories = "";
+        $availableRelation = ['links','events','digital_products','digital_products.images'];
         $with = $request->with;
-        $relation = 'user_categories';
-        if ($with != "") {
-            $relation .= ".".$with;
+        $token = $request->token;
+        
+        if ($id == null) {
+            if ($with != "") {
+                if (!in_array($with, $availableRelation)) {
+                    return response()->json([
+                        'status' => 501,
+                        'message' => "Opsi data tidak tersedia"
+                    ]);
+                }
+            }
+    
+            if ($token != "") {
+                $relation = "user_categories";
+                if ($with != "") {
+                    $relation .= ".".$with;
+                }
+                $user = User::where('token', $token)->with($relation)->first();
+                $categories = $user->user_categories;
+            } else if ($request->user_id != "") {
+                $categories = UserCategory::where('user_id', $request->user_id)->with($with)->get();
+            }
+        } else {
+            $query = UserCategory::where('id', $id);
+            if ($with != "") {
+                $query = $query->with($with);
+            }
+            $categories = $query->get();
         }
 
-        $availableRelation = ['links','events'];
-        if (!in_array($with, $availableRelation)) {
-            return response()->json([
-                'status' => 501,
-                'message' => "Opsi data tidak tersedia"
-            ]);
+		if ($categories != "") {
+            if ($categories->count() > 1) {
+                $i = 0;
+                foreach ($categories as $category) {
+                    $iPP = $i++;
+                    $categories[$iPP]->image = asset('storage/user_category_images/'.$category->image);
+                }
+            } else {
+                $categories = $categories[0];
+                $categories->image = asset('storage/user_category_images/'.$categories->image);
+            }
         }
-
-        $user = UserController::get($token)->with($relation)->first();
-        $categories = $user->user_categories;
-        unset($user->user_categories);
-
-		$i = 0;
-		foreach ($categories as $category) {
-			$iPP = $i++;
-			$categories[$iPP]->image = asset('storage/user_category_images/'.$category->image);
-		}
 
         return response()->json([
             'status' => 200,
             'message' => "Data kategori berhasil diambil",
             'data' => [
-                'user' => $user,
                 'categories' => $categories,
             ]
+        ]);
+    }
+    public function getItems($categoryID, $type) {
+        $category = UserCategory::where('id', $categoryID)->with($type)->first();
+        $items = $category->{$type};
+        unset($category->{$type});
+
+        return response()->json([
+            'category' => $category,
+            $type => $items
         ]);
     }
     public function store(Request $request) {

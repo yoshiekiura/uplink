@@ -13,8 +13,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('tes', 'OtpController@tes');
+
 Route::get('/', function () {
-    return bcrypt('inikatasandi');
+    // return bcrypt('inikatasandi');
+    $url = "https://vt.tiktok.com/ZSeVVEyPD/";
+    $page = file_get_contents($url);
+    // $title = preg_match('/<title[^>]*>(.*?)<\/title>/ims', $page, $match) ? $match[1] : null;
+    echo "<pre>";
+    echo $page;
 });
 
 Route::get('{username}', "WebController@LandingPage");

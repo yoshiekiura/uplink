@@ -14,6 +14,9 @@ class UserController extends Controller
     public static function get($token) {
         return User::where('token', $token);
     }
+    public static function getByID($id) {
+        return User::where('id', $id);
+    }
     public function me(Request $request) {
         $response = [
             'status' => 500,
@@ -53,10 +56,9 @@ class UserController extends Controller
         if (!$loggingIn) {
             return response()->json(['status' => 500, 'message' => "Kombinasi email dan password tidak tepat"]);
         }
-
-        $token = Str::random(32);
-        $data->update(['token' => $token]);
         $user = $data->first();
+
+        $sendOtp = OtpController::send($user, 'login');
 
         return response()->json([
             'status' => 200,

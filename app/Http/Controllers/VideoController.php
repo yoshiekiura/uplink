@@ -43,12 +43,13 @@ class VideoController extends Controller
         $user = UserController::get($request->token)->first();
 
         $url = $request->url;
-        $title = self::getTitle($url);
         if (strpos($url, "youtu") !== false) {
             $type = "youtube";
+            $title = self::getTitle($url);
             $title = explode(" - Youtube", $title)[0];
         } else if (strpos($url, "tiktok") !== false) {
             $type = "tiktok";
+            $title = "TikTok Video";
         } else {
             return response()->json([
                 'status' => 501,

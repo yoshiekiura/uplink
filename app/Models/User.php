@@ -40,5 +40,8 @@ class User extends Authenticatable
     public function user_categories() {
         return $this->hasMany('App\Models\UserCategory', 'user_id');
     }
+    public function banks() {
+        return $this->hasMany('App\Models\UserBank', 'user_id');
+    }
 
 }
