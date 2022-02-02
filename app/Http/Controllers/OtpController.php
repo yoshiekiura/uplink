@@ -35,8 +35,6 @@ class OtpController extends Controller
         $userID = $request->user_id;
         $dateNow = Carbon::now()->format('Y-m-d H:i:s');
 
-        // return response()->json(['code' => $code]);
-
         $data = Otp::whereNull('has_used')
         ->where([
             ['code', $code],
@@ -54,19 +52,22 @@ class OtpController extends Controller
 
         $data->update(['has_used' => 1]);
 
+        $ret = [
+            'status' => 200,
+            'method' => $otp->method,
+            'message' => 'Berhasil mengautentikasi'
+        ];
+
         if ($otp->method == "login") {
             $query = UserController::getByID($userID);
             $token = Str::random(32);
             $query->update(['token' => $token]);
             $user = $query->first();
             
-            return response()->json([
-                'status' => 200,
-                'message' => "Berhasil mengautentikasi",
-                'method' => $otp->method,
-                'data' => $user
-            ]);
+            $ret['data'] = $user;
         }
+
+        return response()->json($ret);
     }
     public function resend(Request $request) {
         $userID = $request->user_id;

@@ -44,8 +44,8 @@ class UserCategoryController extends Controller
             $categories = $query->get();
         }
 
-		if ($categories != "") {
-            if ($categories->count() > 1) {
+		if (count($categories) > 0) {
+            if ($categories->count() >= 1) {
                 $i = 0;
                 foreach ($categories as $category) {
                     $iPP = $i++;

@@ -30,9 +30,14 @@ class UserController extends Controller
         }
         $user = $data->first();
         if ($user != "") {
-			$user->icon = asset('storage/user_icon/'.$user->icon);
+			if ($user->icon == "default") {
+                $user->icon = asset('images/default-icon.png');
+            } else {
+                $user->icon = asset('storage/user_icon/'.$user->icon);
+            }
             $response['status'] = 200;
             $response['data'] = $user;
+            $response['token'] = $token;
         }
 
         return response()->json($response);
@@ -57,8 +62,9 @@ class UserController extends Controller
             return response()->json(['status' => 500, 'message' => "Kombinasi email dan password tidak tepat"]);
         }
         $user = $data->first();
+        $otpMethod = $user->is_email_activated == NULL ? 'register' : 'login';
 
-        $sendOtp = OtpController::send($user, 'login');
+        $sendOtp = OtpController::send($user, $otpMethod);
 
         return response()->json([
             'status' => 200,
@@ -82,34 +88,39 @@ class UserController extends Controller
         ], $customMessagesValidator);
         
         if ($validateData->fails()) {
-            return response()->json(['status' => 500, 'data' => $validateData->messages()]);
+            return response()->json(['status' => 500, 'message' => $validateData->messages()]);
         }
 
-        $icon = "default-icon.png";
-        $background = "default-background.png";
-        $token = Str::random(16);
+        $icon = "default";
+        $background = "default";
 
         $registering = User::create([
             'name' => $request->name,
             'username' => $request->username,
             'email' => $request->email,
+            'bio' => "I just found this wonderful app",
             'password' => bcrypt($request->password),
             'phone' => $request->phone,
             'icon' => $icon,
-            'token' => $token,
             'background_image' => $background,
         ]);
 
-        return response()->json(['status' => 200, 'message' => "Berhasil mendaftar", 'user' => $registering]);
+        $sendOtp = OtpController::send($registering, 'register');
+
+        return response()->json(['status' => 200, 'message' => "Berhasil mendaftar", 'data' => $registering]);
     }
     public function registerCompletion(Request $request) {
-        $token = $request->token;
-        $data = User::where('token', $token);
+        $id = $request->id;
+        $token = Str::random(32);
+
+        $data = User::where('id', $id);
         $updateData = $data->update([
-            'categories' => $request->categories
+            'categories' => $request->categories,
+            'is_email_activated' => 1,
+            'token' => $token
         ]);
 
-        return response()->json(['status' => 200, 'message' => "Berhasil memenuhi pendaftaran", 'user' => $data->first()]);
+        return response()->json(['status' => 200, 'message' => "Berhasil memenuhi pendaftaran", 'data' => $data->first()]);
     }
     public function logout(Request $request) {
         $token = $request->token;
