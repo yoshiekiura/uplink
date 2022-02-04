@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLinksTable extends Migration
+class CreateUserSitesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,18 +13,14 @@ class CreateLinksTable extends Migration
      */
     public function up()
     {
-        Schema::create('links', function (Blueprint $table) {
+        Schema::create('user_sites', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->index()->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->bigInteger('category_id')->index()->unsigned();
-            $table->foreign('category_id')->references('id')->on('user_categories')->onDelete('cascade');
-            $table->string('title');
-            $table->string('url', 555);
-            $table->longText('description')->nullable();
-            $table->string('image')->nullable();
-            $table->integer('priority');
-            $table->integer('clicked');
+            $table->string('seo_title');
+            $table->string('seo_description');
+            $table->string('pixel_tracking_id')->nullable();
+            $table->string('analytics_tracking_id')->nullable();
             $table->timestamps();
         });
     }
@@ -36,6 +32,6 @@ class CreateLinksTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('links');
+        Schema::dropIfExists('user_sites');
     }
 }

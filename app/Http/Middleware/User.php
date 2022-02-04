@@ -18,7 +18,7 @@ class User
     {
         $token = $request->token;
         $user = \App\Http\Controllers\UserController::authenticate($token);
-        if (!$user) {
+        if ($token == "" || $token == null || !$user) {
             return response()->json(['code' => 403, 'message' => "Anda harus login dahulu"]);
         }
         return $next($request);

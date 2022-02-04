@@ -29,7 +29,7 @@ class CreateEventsTable extends Migration
             $table->bigInteger('price');
             $table->bigInteger('price_sale')->nullable();
             $table->integer('quantity');
-            $table->longText('custom_message');
+            $table->longText('custom_message')->nullable();
             $table->string('action_button_text');
             $table->timestamps();
         });

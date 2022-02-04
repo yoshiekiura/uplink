@@ -20,4 +20,7 @@ class UserCategory extends Model
     public function digital_products() {
         return $this->hasMany('App\Models\DigitalProduct', 'category_id');
     }
+    public function events() {
+        return $this->hasMany('App\Models\Event', 'category_id');
+    }
 }

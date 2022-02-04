@@ -10,6 +10,7 @@ Route::group(['prefix' => "user"], function () {
     Route::post('logout', "UserController@logout")->name("user.logout")->middleware('User');
 
     Route::post('me', "UserController@me")->name("user.me")->middleware('User');
+    Route::post('update', "UserController@update")->name("user.update")->middleware('User');
 });
 
 Route::group(['prefix' => "otp"], function () {
@@ -70,7 +71,7 @@ Route::group(['prefix' => "event"], function () {
     Route::post('store', "EventController@store")->middleware('User');
     Route::post('update', "EventController@update")->middleware('User');
     Route::post('delete', "EventController@delete")->middleware('User');
-    Route::post('/', "EventController@get");
+    Route::post('/{categoryID?}', "EventController@get");
 });
 
 Route::group(['prefix' => "digital-product"], function () {

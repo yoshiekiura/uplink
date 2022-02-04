@@ -45,15 +45,10 @@ class UserCategoryController extends Controller
         }
 
 		if (count($categories) > 0) {
-            if ($categories->count() >= 1) {
-                $i = 0;
-                foreach ($categories as $category) {
-                    $iPP = $i++;
-                    $categories[$iPP]->image = asset('storage/user_category_images/'.$category->image);
-                }
-            } else {
-                $categories = $categories[0];
-                $categories->image = asset('storage/user_category_images/'.$categories->image);
+            $i = 0;
+            foreach ($categories as $category) {
+                $iPP = $i++;
+                $categories[$iPP]->image = asset('storage/user_category_images/'.$category->image);
             }
         }
 

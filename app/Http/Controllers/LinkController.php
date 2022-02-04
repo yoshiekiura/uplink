@@ -45,7 +45,8 @@ class LinkController extends Controller
             'title' => $request->title,
             'description' => $meta['description'],
             'url' => $request->url,
-            'priority' => 0
+            'priority' => 0,
+            'clicked' => 0,
         ];
 
         if ($request->hasFile('image')) {

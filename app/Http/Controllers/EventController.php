@@ -9,9 +9,13 @@ use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
+    public function get(Request $request, $categoryID = null) {
+        $token = $request->token;
+    }
     public function store(Request $request) {
         $token = $request->token;
         $user = UserController::get($token)->first();
+        $priceSale = $request->price_sale == "null" ? null : $request->price_sale;
 
         $quantity = $request->quantity == "" ? -1 : $request->quantity;
         $cover = $request->file('cover');
@@ -28,7 +32,7 @@ class EventController extends Controller
             'date' => $request->date,
             'duration' => $request->duration,
             'price' => $request->price,
-            'price_sale' => $request->price_sale,
+            'price_sale' => $priceSale,
             'quantity' => $quantity,
             'custom_message' => $request->custom_message,
             'action_button_text' => $request->action_button_text,

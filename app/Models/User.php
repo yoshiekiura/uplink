@@ -43,5 +43,8 @@ class User extends Authenticatable
     public function banks() {
         return $this->hasMany('App\Models\UserBank', 'user_id');
     }
+    public function site() {
+        return $this->hasOne('App\Models\UserSite', 'user_id');
+    }
 
 }
