@@ -44,6 +44,16 @@ class UserController extends Controller
 
         return response()->json($response);
     }
+    public function profile($username) {
+        $user = User::where('username', $username)->first();
+        $user->icon = asset('storage/user_icon/' . $user->icon);
+        
+        return response()->json([
+            'status' => 200,
+            'user' => $user,
+            'message' => "Berhasil mengambil profil"
+        ]);
+    }
     public static function authenticate($token, $getQuery = null) {
         $user = User::where('token', $token);
         if ($user->first() == "") return false;

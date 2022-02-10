@@ -19,7 +19,7 @@ class User
         $token = $request->token;
         $user = \App\Http\Controllers\UserController::authenticate($token);
         if ($token == "" || $token == null || !$user) {
-            return response()->json(['code' => 403, 'message' => "Anda harus login dahulu"]);
+            return response()->json(['code' => 503, 'message' => "Anda harus login dahulu"]);
         }
         return $next($request);
     }

@@ -26,6 +26,15 @@ class LinkController extends Controller
             'data' => $links
         ]);
     }
+    public function getByID($linkID, Request $request) {
+        $token = $request->token;
+        $link = Link::where('id', $linkID)->first();
+        return response()->json([
+            'status' => 200,
+            'message' => "Berhasil mengambil data link",
+            'link' => $link
+        ]);
+    }
     public function store(Request $request) {
         $customMessagesValidator = ['required' => ":attribute harus diisi",];
         $validateData = Validator::make($request->all(), [
@@ -86,5 +95,23 @@ class LinkController extends Controller
         }
 
         return response()->json(['status' => 200, 'message' => 'Link berhasil dihapus']);
+    }
+    public function update(Request $request) {
+        $id = $request->id;
+        $data = Link::where('id', $id);
+        $description = "No info available";
+        
+        $meta = get_meta_tags($request->url);
+        if ($meta) {
+            $description = $meta['description'];
+        }
+
+        $updateData = $data->update([
+            'title' => $request->title,
+            'url' => $request->url,
+            'description' => $description
+        ]);
+
+        return response()->json(['status' => 200, 'message' => 'Berhasil mengubah link']);
     }
 }

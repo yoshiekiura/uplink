@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('tes', 'OtpController@tes');
 
+Route::get('link/{id}', "VisitorController@visitLink");
+
 Route::get('/', function () {
     // return bcrypt('inikatasandi');
     $url = "https://vt.tiktok.com/ZSeVVEyPD/";

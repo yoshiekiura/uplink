@@ -8,6 +8,27 @@ use Illuminate\Http\Request;
 
 class SupportController extends Controller
 {
+    public function get(Request $request) {
+        $token = $request->token;
+        $user = UserController::get($token)->with('supports')->first();
+        $datas = $user->supports;
+        unset($user->supports);
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Berhasil mengambil data support",
+            'datas' => $datas,
+            'user' => $user
+        ]);
+    }
+    public function getByUserID($userID) {
+        $datas = Support::where('user_id', $userID)->get();
+        return response()->json([
+            'status' => 200,
+            'message' => "Berhasil mengambil data support",
+            'datas' => $datas
+        ]);
+    }
     public function store(Request $request) {
         $customMessagesValidator = ['required' => ":attribute harus diisi",];
         $validateData = Validator::make($request->all(), [

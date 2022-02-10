@@ -37,6 +37,9 @@ class User extends Authenticatable
     public function links() {
         return $this->hasMany('App\Models\Link', 'user_id');
     }
+    public function supports() {
+        return $this->hasMany('App\Models\Support', 'user_id');
+    }
     public function user_categories() {
         return $this->hasMany('App\Models\UserCategory', 'user_id');
     }

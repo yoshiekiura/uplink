@@ -10,6 +10,7 @@ Route::group(['prefix' => "user"], function () {
     Route::post('logout', "UserController@logout")->name("user.logout")->middleware('User');
 
     Route::post('me', "UserController@me")->name("user.me")->middleware('User');
+    Route::post('profile/{username}', "UserController@profile")->name('user.profile');
     Route::post('update', "UserController@update")->name("user.update")->middleware('User');
 });
 
@@ -38,6 +39,7 @@ Route::group(['prefix' => "link"], function () {
     Route::post('update', "LinkController@update")->middleware('User');
     Route::post('delete', "LinkController@delete")->middleware('User');
     Route::post('/{categoryID?}', "LinkController@get");
+    Route::post('/{id}/get', "LinkController@getByID");
 });
 
 Route::group(['prefix' => "support"], function () {
@@ -45,6 +47,7 @@ Route::group(['prefix' => "support"], function () {
     Route::post('update', "SupportController@update")->middleware('User');
     Route::post('delete', "SupportController@delete")->middleware('User');
     Route::post('/', "SupportController@get");
+    Route::post('/{userID}/user', "SupportController@getByUserID");
 });
 
 Route::group(['prefix' => "visitor"], function () {
@@ -72,6 +75,7 @@ Route::group(['prefix' => "event"], function () {
     Route::post('update', "EventController@update")->middleware('User');
     Route::post('delete', "EventController@delete")->middleware('User');
     Route::post('/{categoryID?}', "EventController@get");
+    Route::post('/{id}/get', "EventController@getByID");
 });
 
 Route::group(['prefix' => "digital-product"], function () {
