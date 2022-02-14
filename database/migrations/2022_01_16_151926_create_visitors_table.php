@@ -17,7 +17,7 @@ class CreateVisitorsTable extends Migration
             $table->id();
             $table->bigInteger('user_id')->index()->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->string('name');
+            $table->string('name')->nullable();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->text('address')->nullable();

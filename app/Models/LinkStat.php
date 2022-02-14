@@ -10,7 +10,7 @@ class LinkStat extends Model
     use HasFactory;
 
     protected $fillable = [
-        'link_id','count','date'
+        'link_id','visitor_id','count','date'
     ];
 
     public function link() {

@@ -34,6 +34,13 @@ class VideoController extends Controller
             'data' => $video
         ]);
     }
+    public function getByUserID($userID) {
+        $datas = Video::where('user_id', $userID)->get();
+        return response()->json([
+            'status' => 200,
+            'datas' => $datas
+        ]);
+    }
     public static function getTitle($url) {
         $page = file_get_contents($url);
         $title = preg_match('/<title[^>]*>(.*?)<\/title>/ims', $page, $match) ? $match[1] : null;

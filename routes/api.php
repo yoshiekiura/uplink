@@ -40,6 +40,8 @@ Route::group(['prefix' => "link"], function () {
     Route::post('delete', "LinkController@delete")->middleware('User');
     Route::post('/{categoryID?}', "LinkController@get");
     Route::post('/{id}/get', "LinkController@getByID");
+    Route::post('/{id}/statistic/{filter?}', "LinkController@statistic"); // available filter : month, semester
+    Route::post('/{id}/visit', "VisitorController@visitLink");
 });
 
 Route::group(['prefix' => "support"], function () {
@@ -48,10 +50,27 @@ Route::group(['prefix' => "support"], function () {
     Route::post('delete', "SupportController@delete")->middleware('User');
     Route::post('/', "SupportController@get");
     Route::post('/{userID}/user', "SupportController@getByUserID");
+    Route::post('/{itemID}/get', "SupportController@getByID");
 });
 
 Route::group(['prefix' => "visitor"], function () {
     Route::post('register', "VisitorController@register");
+    Route::post('update', "VisitorController@update");
+
+    Route::post('transactions', "VisitorController@transactions");
+    Route::post('transactions/{id}/detail', "VisitorController@transactionDetail");
+
+    Route::group(['prefix' => "cart"], function () {
+        Route::post('/', "CartController@get");
+        Route::post('/store', "CartController@store");
+        Route::post('item/{itemID}/{type}', "CartController@increase");
+        Route::post('{id}/checkout', "CartController@checkout");
+        Route::post('{id}/remove', "CartController@remove");
+    });
+
+    Route::group(['prefix' => "shipping"], function () {
+        Route::post('courier', "RajaongkirController@courier");
+    });
 });
 
 Route::group(['prefix' => "video"], function () {
@@ -61,11 +80,12 @@ Route::group(['prefix' => "video"], function () {
     Route::post('priority', "VideoController@priority")->middleware('User');
     Route::post('/', "VideoController@get");
     Route::post('/{id}', "VideoController@getByID");
+    Route::post('/{userID}/get', "VideoController@getByUserID");
 });
 
 Route::group(['prefix' => "ongkir"], function () {
-    Route::get('province', "RajaongkirController@province");
-    Route::get('province/{provinceID}/city/{cityID?}', "RajaongkirController@city");
+    Route::post('province', "RajaongkirController@province");
+    Route::post('province/{provinceID}/city/{cityID?}', "RajaongkirController@city");
     Route::get('cost', "RajaongkirController@cost");
     Route::get('courier', "RajaongkirController@courier");
 });
@@ -83,6 +103,7 @@ Route::group(['prefix' => "digital-product"], function () {
     Route::post('update', "DigitalProductController@update")->middleware('User');
     Route::post('delete', "DigitalProductController@delete")->middleware('User');
     Route::post('/{categoryID?}', "DigitalProductController@get");
+    Route::post('/{id}/get', "DigitalProductController@getByID");
 });
 
 Route::group(['prefix' => "bank"], function () {

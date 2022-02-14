@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Log;
 use Storage;
 use Validator;
+use Carbon\Carbon;
 use App\Models\Link;
+use App\Models\LinkStat;
 use Illuminate\Http\Request;
 
 class LinkController extends Controller
@@ -54,8 +57,7 @@ class LinkController extends Controller
             'title' => $request->title,
             'description' => $meta['description'],
             'url' => $request->url,
-            'priority' => 0,
-            'clicked' => 0,
+            'priority' => 0
         ];
 
         if ($request->hasFile('image')) {
@@ -113,5 +115,89 @@ class LinkController extends Controller
         ]);
 
         return response()->json(['status' => 200, 'message' => 'Berhasil mengubah link']);
+    }
+    public function statistic($id, $filter = "month") {
+        $now = Carbon::now();
+        $data = Link::where('id', $id);
+        $toReturn = [];
+
+        if ($filter == "month") {
+            $datas = LinkStat::where([
+                ['link_id', $id],
+                ['date', "LIKE", "%".$now->format('Y-m')."%"]
+            ])
+            ->orderBy('date', 'ASC')->get();
+
+            foreach ($datas as $i => $data) {
+                if (count($toReturn) == 0) {
+                    array_push($toReturn, [
+                        'date' => $data->date,
+                        'click' => $data->count
+                    ]);
+                } else {
+                    $isDataFound = false;
+                    foreach ($toReturn as $k => $ret) {
+                        if ($ret['date'] == $data->date) {
+                            $isDataFound = $k;
+                        }
+                    }
+
+                    if ($isDataFound === false) {
+                        array_push($toReturn, [
+                            'date' => $data->date,
+                            'click' => $data->count
+                        ]);
+                    } else {
+                        $toReturn[$isDataFound]['click'] += $data->count;
+                    }
+                }
+            }
+        } else {
+            $monthCount = 6;
+            if ($filter == "semester") {
+                $monthCount = 6;
+            }else if ($filter == "yearly") {
+                $monthCount = 12;
+            }
+            $startDate = $now->subMonths($monthCount)->startOfMonth()->format('Y-m-d');
+            $endDate = Carbon::now()->endOfMonth()->format('Y-m-d');
+
+            $datas = LinkStat::where('link_id', $id)
+            ->whereBetween('date', [$startDate, $endDate])
+            ->orderBy('date', 'ASC')->get();
+
+            foreach ($datas as $i => $data) {
+                $month = self::formatDate($data->date, 'MMM');
+                if (count($toReturn) == 0) {
+                    array_push($toReturn, [
+                        'month' => $month,
+                        'click' => $data->count
+                    ]);
+                } else {
+                    $isDataFound = false;
+                    foreach ($toReturn as $k => $ret) {
+                        if ($ret['month'] == $month) {
+                            $isDataFound = $k;
+                        }
+                    }
+                    if ($isDataFound === false) {
+                        array_push($toReturn, [
+                            'month' => $month,
+                            'click' => $data->count
+                        ]);
+                    } else {
+                        $toReturn[$isDataFound]['click'] += $data->count;
+                    }
+                }
+            }
+        }
+
+        return response()->json([
+            'status' => 200,
+            'datas' => $toReturn,
+        ]);
+    }
+    public static function formatDate($date, $form) {
+        return Carbon::parse($date)->isoFormat($form);
     }
 }

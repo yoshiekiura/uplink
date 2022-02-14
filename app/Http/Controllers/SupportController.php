@@ -29,6 +29,14 @@ class SupportController extends Controller
             'datas' => $datas
         ]);
     }
+    public function getByID($itemID) {
+        $data = Support::where('id', $itemID)->first();
+        return response()->json([
+            'status' => 200,
+            'message' => "Berhasil mengambil data support",
+            'support' => $data
+        ]);
+    }
     public function store(Request $request) {
         $customMessagesValidator = ['required' => ":attribute harus diisi",];
         $validateData = Validator::make($request->all(), [
