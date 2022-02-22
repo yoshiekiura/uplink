@@ -9,10 +9,13 @@ class BankController extends Controller
 {
     public function get(Request $request) {
         $user = UserController::get($request->token)->first();
-        $banks = Bank::where('user_id', $user->id)->orderBy('created_at', 'DESC')->get();
+        $banks = Bank::where([
+            ['user_id', $user->id]
+        ])->orderBy('created_at', 'DESC')->get();
 
         return response()->json([
             'status' => 200,
+            'user_id' => $user->id,
             'message' => "Berhasil mengambil data bank",
             'data' => $banks
         ]);
@@ -24,6 +27,7 @@ class BankController extends Controller
         $saveData = Bank::create([
             'user_id' => $user->id,
             'bank_name' => $request->bank_name,
+            'bank_code' => $request->bank_code,
             'account_name' => $request->account_name,
             'account_number' => $request->account_number
         ]);

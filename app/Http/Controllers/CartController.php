@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use DB;
 use Log;
 use Str;
+use Xendit\Xendit as Xendit;
 use Illuminate\Http\Request;
 
 use App\Models\User;
 use App\Models\Event;
 use App\Models\Visitor;
+use App\Models\UserVoucher;
 use App\Models\VisitorOrder;
 use App\Models\VisitorOrderDetail;
 
@@ -30,6 +32,7 @@ class CartController extends Controller
         ]
     ];
     public function get(Request $request) {
+        $details = null;
         $token = $request->token;
         $visitor = Visitor::where('token', $token)->first();
         $cart = VisitorOrder::where([
@@ -37,20 +40,21 @@ class CartController extends Controller
             ['user_id', $request->user_id],
             ['is_placed', 0]
         ])
-        ->with('details')
+        ->with(['details','voucher'])
         ->first();
 
-        $details = $cart->details;
-        
-        foreach ($details as $item) {
-            $productType = $item->product_type;
-            $classModel = self::$classToCall[$productType];
-            $className = $classModel['name'];
-            $queryProduct = $className::where('id', $item->{$productType});
-            if (array_key_exists('relation', $classModel)) {
-                $queryProduct = $queryProduct->with($classModel['relation']);
+        if ($cart != "") {
+            $details = $cart->details;
+            foreach ($details as $item) {
+                $productType = $item->product_type;
+                $classModel = self::$classToCall[$productType];
+                $className = $classModel['name'];
+                $queryProduct = $className::where('id', $item->{$productType});
+                if (array_key_exists('relation', $classModel)) {
+                    $queryProduct = $queryProduct->with($classModel['relation']);
+                }
+                $item->product = $queryProduct->first();
             }
-            $item->product = $queryProduct->first();
         }
 
         return response()->json([
@@ -88,7 +92,8 @@ class CartController extends Controller
                 'invoice_number' => $invNumber,
                 'total' => $request->item_price,
                 'grand_total' => $request->item_price,
-                'is_placed' => 0
+                'is_placed' => 0,
+                'has_withdrawn' => 0
             ]);
 
             $detailToSave['order_id'] = $saveCart->id;
@@ -184,11 +189,89 @@ class CartController extends Controller
 
         return response()->json(['status' => 200]);
     }
-    public function checkout($cartID) {
-        $data = VisitorOrder::where('id', $cartID)->update([
+    public function checkout($cartID, Request $request) {
+        $data = VisitorOrder::where('id', $cartID);
+        $cart = $data->first();
+
+        $placeOrder = $data->update([
             'is_placed' => 1,
-            'note' => $request->note
+            'notes' => $request->note
         ]);
+        $updateVoucher = UserVoucher::where('id', $cart->voucher_id)->decrement('quantity');
+
         return response()->json(['status' => 200]);
+    }
+    public function pay($cartID, Request $request) {
+        $cartQuery = VisitorOrder::where('id', $cartID);
+        $cart = $cartQuery->first();
+        $referenceID = "UPLNK_".$cart->invoice_number;
+        $externalID = 'uplink-'.$cart->invoice_number;
+
+        $channelCode = $request->channel;
+        $paymentMethod = $request->payment_method;
+
+        Xendit::setApiKey(env('XENDIT_SECRET_KEY'));
+        if ($paymentMethod == 'ewallets') {
+            $channelName = explode("id_", $channelCode)[1];
+            $args = [
+                'reference_id' => $referenceID,
+                'currency' => "IDR",
+                'amount' => 1000,
+                // 'amount' => $cart->grand_total,
+                'checkout_method' => "ONE_TIME_PAYMENT",
+                'channel_code' => strtoupper($channelCode),
+                'channel_properties' => [
+                    'success_redirect_url' => env('APP_URL')
+                ]
+            ];
+            if ($channelCode == 'id_ovo') {
+                $mobileNumber = preg_replace('/^0/', "+62", $request->mobile);
+                $args['channel_properties']['mobile_number'] = $mobileNumber;
+            }
+            $makePayment = \Xendit\EWallets::createEWalletCharge($args);
+        } else if ($paymentMethod == 'virtual_account') {
+            $channelName = explode("fva_", $channelCode)[1];
+            $args = [
+                'external_id' => $externalID,
+                'bank_code' => strtoupper($channelName),
+                'name' => "Riyan dari Uplink",
+                'is_single_use' => true,
+                'expected_amount' => $cart->grand_total,
+                'suggested_amount' => $cart->grand_total,
+            ];
+            $makePayment = \Xendit\VirtualAccounts::create($args);
+        }
+
+        $toUpdate = [
+            'payment_reference_id' => $referenceID,
+            'payment_external_id' => $externalID,
+            'payment_method' => $channelName
+        ];
+        if ($paymentMethod == 'virtual_account') {
+            $toUpdate['payment_owner_id'] = $makePayment['owner_id'];
+            $toUpdate['payment_id'] = $makePayment['id'];
+        }
+
+        $updateCart = $cartQuery->update($toUpdate);
+
+        return response()->json([
+            'status' => 200,
+            'payment' => $makePayment
+        ]);
+    }
+    public function paymentStatus($id, Request $request) {
+        $cartQuery = VisitorOrder::where('id', $id);
+        $cart = $cartQuery->first();
+
+        Xendit::setApiKey(env('XENDIT_SECRET_KEY'));
+        if ($cart->payment_id != null) {
+            $payment = \Xendit\VirtualAccounts::retrieve($cart->payment_id);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'cart' => $cart,
+            'payment' => $payment,
+        ]);
     }
 }

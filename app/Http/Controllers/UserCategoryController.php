@@ -34,7 +34,11 @@ class UserCategoryController extends Controller
                 $user = User::where('token', $token)->with($relation)->first();
                 $categories = $user->user_categories;
             } else if ($request->user_id != "") {
-                $categories = UserCategory::where('user_id', $request->user_id)->with($with)->get();
+                $categoryQuery = UserCategory::where('user_id', $request->user_id);
+                if ($with != "") {
+                    $categoryQuery = $categoryQuery->with($with);
+                }
+                $categories = $categoryQuery->get();
             }
         } else {
             $query = UserCategory::where('id', $id);

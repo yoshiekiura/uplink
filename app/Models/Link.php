@@ -16,4 +16,7 @@ class Link extends Model
     public function category() {
         return $this->belongsTo('App\Models\UserCategory', 'category_id');
     }
+    public function statistics() {
+        return $this->hasMany('App\Models\LinkStat', 'link_id');
+    }
 }

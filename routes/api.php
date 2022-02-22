@@ -12,6 +12,13 @@ Route::group(['prefix' => "user"], function () {
     Route::post('me', "UserController@me")->name("user.me")->middleware('User');
     Route::post('profile/{username}', "UserController@profile")->name('user.profile');
     Route::post('update', "UserController@update")->name("user.update")->middleware('User');
+    
+    Route::post('balance', "UserController@getBalance")->middleware('User');
+    Route::post('bank', "UserController@getBank")->middleware('User');
+    Route::group(['prefix' => "withdraw"], function () {
+        Route::post('/', "WithdrawController@history")->middleware('User');
+        Route::post('payout', "WithdrawController@payout")->middleware('User');
+    });
 });
 
 Route::group(['prefix' => "otp"], function () {
@@ -38,9 +45,10 @@ Route::group(['prefix' => "link"], function () {
     Route::post('store', "LinkController@store")->middleware('User');
     Route::post('update', "LinkController@update")->middleware('User');
     Route::post('delete', "LinkController@delete")->middleware('User');
+    Route::post('statistic', "LinkController@statistic");
     Route::post('/{categoryID?}', "LinkController@get");
     Route::post('/{id}/get', "LinkController@getByID");
-    Route::post('/{id}/statistic/{filter?}', "LinkController@statistic"); // available filter : month, semester
+    Route::post('/{id}/statistic/{filter?}', "LinkController@statisticByID"); // available filter : month, semester
     Route::post('/{id}/visit', "VisitorController@visitLink");
 });
 
@@ -53,12 +61,24 @@ Route::group(['prefix' => "support"], function () {
     Route::post('/{itemID}/get', "SupportController@getByID");
 });
 
+Route::group(['prefix' => "callbacks"], function () {
+    Route::post('{channel}', "VisitorController@paymentCallbacks");
+});
+Route::group(['prefix' => "sales"], function () {
+    Route::post('/', "SalesController@get");
+    Route::post('{id}/detail', "SalesController@detail");
+});
+
 Route::group(['prefix' => "visitor"], function () {
+    Route::post('me', "VisitorController@me");
+    Route::post('check', "VisitorController@check");
     Route::post('register', "VisitorController@register");
     Route::post('update', "VisitorController@update");
 
     Route::post('transactions', "VisitorController@transactions");
     Route::post('transactions/{id}/detail', "VisitorController@transactionDetail");
+    Route::post('transactions/{id}/pay', "CartController@pay");
+    Route::post('transactions/{id}/payment-status', "CartController@paymentStatus");
 
     Route::group(['prefix' => "cart"], function () {
         Route::post('/', "CartController@get");
@@ -71,6 +91,8 @@ Route::group(['prefix' => "visitor"], function () {
     Route::group(['prefix' => "shipping"], function () {
         Route::post('courier', "RajaongkirController@courier");
     });
+
+    Route::post('statistic', "VisitorController@statistic")->middleware('User');
 });
 
 Route::group(['prefix' => "video"], function () {
@@ -111,4 +133,19 @@ Route::group(['prefix' => "bank"], function () {
     Route::post('update', "BankController@update")->middleware('User');
     Route::post('delete', "BankController@delete")->middleware('User');
     Route::post('/{categoryID?}', "BankController@get");
+});
+
+Route::group(['prefix' => "voucher"], function () {
+    Route::post('store', "VoucherController@store")->middleware('User');
+    Route::post('update', "VoucherController@update")->middleware('User');
+    Route::post('delete', "VoucherController@delete")->middleware('User');
+    Route::post('/', "VoucherController@get")->middleware('User');
+    Route::post('apply', "VoucherController@apply");
+    Route::post('remove', "VoucherController@remove");
+    Route::post('statistic', "VoucherController@statistic");
+});
+
+Route::group(['prefix' => "export"], function () {
+    Route::post('customer', "ExportController@customer");
+    Route::post('sales', "ExportController@sales");
 });

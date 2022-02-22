@@ -9,6 +9,7 @@ use Storage;
 use Validator;
 use App\Models\User;
 use App\Models\UserSite;
+use App\Models\VisitorOrder;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -45,8 +46,10 @@ class UserController extends Controller
         return response()->json($response);
     }
     public function profile($username) {
-        $user = User::where('username', $username)->first();
-        $user->icon = asset('storage/user_icon/' . $user->icon);
+        $user = User::where('username', $username)->with('socials')->first();
+        if ($user != "") {
+            $user->icon = asset('storage/user_icon/' . $user->icon);
+        }
         
         return response()->json([
             'status' => 200,
@@ -176,5 +179,25 @@ class UserController extends Controller
             'message' => "Berhasil mengubah profil",
             'data' => $user
         ]);
+    }
+    public function getBalance(Request $request) {
+        $token = $request->token;
+        $user = self::get($token)->first();
+        $getOrders = VisitorOrder::where([
+            ['user_id', $user->id],
+            ['is_placed', 1],
+            ['payment_status', 1],
+            ['has_withdrawn', 0]
+        ])->get();
+        $balance = $getOrders->sum('grand_total');
+
+        return response()->json([
+            'status' => 200,
+            'balance' => $balance
+        ]);
+    }
+    public function getBank(Request $request) {
+        $token = $request->token;
+        $user = self::get($token)->first();
     }
 }

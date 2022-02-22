@@ -116,7 +116,7 @@ class LinkController extends Controller
 
         return response()->json(['status' => 200, 'message' => 'Berhasil mengubah link']);
     }
-    public function statistic($id, $filter = "month") {
+    public function statisticByID($id, $filter = "month") {
         $now = Carbon::now();
         $data = Link::where('id', $id);
         $toReturn = [];
@@ -199,5 +199,52 @@ class LinkController extends Controller
     }
     public static function formatDate($date, $form) {
         return Carbon::parse($date)->isoFormat($form);
+    }
+    public function statistic(Request $request) {
+        $now = Carbon::now();
+        $startDate = $now->startOfMonth()->format('Y-m-d');
+        $endDate = $now->endOfMonth()->format('Y-m-d');
+        $token = $request->token;
+        $user = UserController::get($token)->first();
+
+        $rawDatas = LinkStat::whereBetween('date', [$startDate, $endDate])
+        ->whereHas('link', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
+        ->with('link')->get();
+
+        $storedLinkID = [];
+        $links = [];
+
+        foreach ($rawDatas as $data) {
+            if (in_array($data->link_id, $storedLinkID)) {
+                // sudah ada
+                foreach ($links as $l => $link) {
+                    if ($link['id'] == $data->link_id) {
+                        $links[$l]['count'] += $data->count;
+                    }
+                }
+            } else {
+                // belum ada
+                if (count($storedLinkID) <= 10) {
+                    array_push($links, [
+                        'id' => $data->link->id,
+                        'user_id' => $data->link->user_id,
+                        'category_id' => $data->link->category_id,
+                        'title' => $data->link->title,
+                        'url' => $data->link->url,
+                        'description' => $data->link->description,
+                        'count' => $data->count
+                    ]);
+                    array_push($storedLinkID, $data->link_id);
+                }
+            }
+        }
+
+        return response()->json([
+            'status' => 200,
+            'token' => $token,
+            'links' => $links
+        ]);
     }
 }

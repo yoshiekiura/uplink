@@ -10,6 +10,6 @@ class UserBank extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id','bank_name','account_name','account_number'
+        'user_id','bank_name','bank_code','account_name','account_number'
     ];
 }

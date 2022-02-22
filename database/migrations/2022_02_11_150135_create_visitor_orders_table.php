@@ -26,6 +26,7 @@ class CreateVisitorOrdersTable extends Migration
             $table->tinyInteger('payment_status')->nullable();
             $table->string('payment_evidence')->nullable();
             $table->text('notes')->nullable();
+            $table->tinyInteger('has_withdrawn');
             $table->tinyInteger('is_placed');
             $table->timestamps();
         });
