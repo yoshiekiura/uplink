@@ -108,7 +108,7 @@ class UserController extends Controller
 
         $icon = "default";
         $background = "default";
-        $title = $request->name;
+        $name = $request->name;
         $bio = "I just found this wonderful app";
 
         $registering = User::create([

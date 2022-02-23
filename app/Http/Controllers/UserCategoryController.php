@@ -48,7 +48,7 @@ class UserCategoryController extends Controller
             $categories = $query->get();
         }
 
-		if (count($categories) > 0) {
+		if ($categories != "" && count($categories) > 0) {
             $i = 0;
             foreach ($categories as $category) {
                 $iPP = $i++;
@@ -58,6 +58,7 @@ class UserCategoryController extends Controller
 
         return response()->json([
             'status' => 200,
+            'token' => $token,
             'message' => "Data kategori berhasil diambil",
             'data' => [
                 'categories' => $categories,
