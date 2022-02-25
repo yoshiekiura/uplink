@@ -154,13 +154,15 @@ class VisitorController extends Controller
     }
     public function paymentCallbacks($channel, Request $request) {
         $amount = $request->amount;
-        $data = $request->data;
+        $referenceID = null;
+        $paymentID = null;
 
         if ($channel == 'ewallet') {
+            $data = $request->data;
             $referenceID = $data['reference_id'];
             $cartQuery = VisitorOrder::where('payment_reference_id', $referenceID);
         } else if ($channel == 'fva') {
-            $paymentID = $data['payment_id'];
+            $paymentID = $request->payment_id;
             $cartQuery = VisitorOrder::where('payment_id', $paymentID);
         }
         
@@ -168,7 +170,8 @@ class VisitorController extends Controller
 
         return response()->json([
             'message' => "Halo ".$channel,
-            'reference_id' => $referenceID
+            'reference_id' => $referenceID,
+            'payment_id' => $paymentID
         ]);
     }
     public function statistic(Request $request) {
