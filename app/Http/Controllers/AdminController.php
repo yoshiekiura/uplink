@@ -40,4 +40,40 @@ class AdminController extends Controller
             'myData' => $myData
         ]);
     }
+    public function setEnv($datas) {
+        $path = base_path('.env');
+
+        if (file_exists($path)) {
+            foreach ($datas as $key => $value) {
+                $oldKey = env($key);
+
+                // Checking if contain space
+                $s = explode(" ", $value);
+                if (isset($s[1])) {
+                    $value = "\"$value\"";
+                }
+                if (isset(explode(" ", $oldKey)[1])) {
+                    $oldKey = "\"$oldKey\"";
+                }
+                
+                $patt = "$key=$oldKey";
+                $repl = "$key=$value";
+                file_put_contents($path, str_replace($patt, $repl, file_get_contents($path)));
+            }
+        }
+    }
+    public function getSettings(Request $request) {
+        $configs = $request->configs;
+
+        $ret = [];
+        foreach ($configs as $cfg) {
+            $ret[$cfg] = env($cfg);
+        }
+        return response()->json($ret);
+    }
+    public function setSettings(Request $request) {
+        $configs = $request->configs;
+        $this->setEnv($configs);
+        return response()->json(['status' => $configs]);
+    }
 }

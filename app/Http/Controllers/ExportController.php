@@ -22,7 +22,7 @@ class ExportController extends Controller
         $name = ucwords($user->name);
         $name = str_replace(' ', '_', $name);
 
-        $filename = $name."_Customer_Rerort_".$now->isoFormat('MMMM').".xlsx";
+        $filename = $name."_Customer_Report_".$now->isoFormat('MMMM').".xlsx";
 
         $datas = Visitor::where('user_id', $user->id)
         ->whereBetween('created_at', [
@@ -47,7 +47,7 @@ class ExportController extends Controller
         $name = ucwords($user->name);
         $name = str_replace(' ', '_', $name);
 
-        $filename = $name."_Sales_Rerort_".$now->isoFormat('MMMM')."_".$now->format('Y').".xlsx";
+        $filename = $name."_Sales_Report_".$now->isoFormat('MMMM')."_".$now->format('Y').".xlsx";
 
         $datas = VisitorOrder::where([
             ['is_placed', 1],

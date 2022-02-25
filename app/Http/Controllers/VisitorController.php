@@ -155,11 +155,16 @@ class VisitorController extends Controller
     public function paymentCallbacks($channel, Request $request) {
         $amount = $request->amount;
         $data = $request->data;
-        $referenceID = $data['reference_id'];
-        $status = $data['status'];
 
-        $cartQuery = VisitorOrder::where('payment_reference_id', $referenceID);
-        $updateCart = $cartQuery->update(['payment_status' => $status]);
+        if ($channel == 'ewallet') {
+            $referenceID = $data['reference_id'];
+            $cartQuery = VisitorOrder::where('payment_reference_id', $referenceID);
+        } else if ($channel == 'fva') {
+            $paymentID = $data['payment_id'];
+            $cartQuery = VisitorOrder::where('payment_id', $paymentID);
+        }
+        
+        $updateCart = $cartQuery->update(['payment_status' => 'SUCCEEDED']);
 
         return response()->json([
             'message' => "Halo ".$channel,

@@ -145,6 +145,35 @@ class UserController extends Controller
 
         return response()->json(['status' => 200, 'message' => "Berhasil memenuhi pendaftaran", 'data' => $data->first()]);
     }
+    public function forgotPassword(Request $request) {
+        $email = $request->email;
+        $data = User::where('email', $email);
+        $user = $data->first();
+
+        if ($user == "") {
+            $res['status'] = 404;
+            $res['message'] = "We cannot find any user with email address ".$email;
+        } else {
+            $sendOtp = OtpController::send($user, 'forgot-password');
+            $res['status'] = 200;
+            $res['message'] = "We cannot find any user with email address ".$email;
+        }
+
+        return response()->json($res);
+    }
+    public function resetPassword(Request $request) {
+        $data = User::where('email', $request->email);
+        $user = $data->first();
+
+        $data->update([
+            'password' => bcrypt($request->password)
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Password has been changed. Please login again using new password (".$request->email." : ".$request->password.")"
+        ]);
+    }
     public function logout(Request $request) {
         $token = $request->token;
         $loggingOut = self::get($token)->update(['token' => null]);

@@ -8,6 +8,8 @@ Route::group(['prefix' => "user"], function () {
     Route::post('register', "UserController@register")->name("user.register");
     Route::post('register-completion', "UserController@registerCompletion")->name("user.register.completion");
     Route::post('logout', "UserController@logout")->name("user.logout")->middleware('User');
+    Route::post('forgot-password', "UserController@forgotPassword")->name("user.forgotPassword");
+    Route::post('reset-password', "UserController@resetPassword")->name("user.resetPassword");
 
     Route::post('me', "UserController@me")->name("user.me")->middleware('User');
     Route::post('profile/{username}', "UserController@profile")->name('user.profile');
@@ -148,4 +150,9 @@ Route::group(['prefix' => "voucher"], function () {
 Route::group(['prefix' => "export"], function () {
     Route::post('customer', "ExportController@customer");
     Route::post('sales', "ExportController@sales");
+});
+
+Route::group(['prefix' => 'settings'], function() {
+    Route::post('get', 'AdminController@getSettings');
+    Route::post('set', 'AdminController@setSettings');
 });
