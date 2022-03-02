@@ -105,20 +105,21 @@ class VoucherController extends Controller
         $token = $request->token;
         $user = UserController::get($token)->first();
 
-        $datas = VisitorOrder::where([
-            ['voucher_id', 'IS NOT', NULL],
+        $datas = Voucher::where([
             ['user_id', $user->id]
         ])
-        ->whereBetween('created_at', [
+        ->whereBetween('expiration', [
             $now->startOfMonth()->format('Y-m-d'),
             $now->endOfMonth()->format('Y-m-d')
         ])
-        ->with(['voucher'])
+        ->withCount('usages')->orderBy('usages_count', 'DESC')
         ->get();
+        $totalUsages = $datas->sum('usages_count');
 
         return response()->json([
             'status' => 200,
-            'datas' => $datas
+            'datas' => $datas,
+            'total_usages' => $totalUsages
         ]);
     }
 }

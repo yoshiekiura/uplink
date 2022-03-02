@@ -203,7 +203,8 @@ class CartController extends Controller
     }
     public function pay($cartID, Request $request) {
         $cartQuery = VisitorOrder::where('id', $cartID);
-        $cart = $cartQuery->first();
+        $cart = $cartQuery->with('user')->first();
+        $user = $cart->user;
         $referenceID = "UPLNK_".$cart->invoice_number;
         $externalID = 'uplink-'.$cart->invoice_number;
 
@@ -234,7 +235,7 @@ class CartController extends Controller
             $args = [
                 'external_id' => $externalID,
                 'bank_code' => strtoupper($channelName),
-                'name' => "Riyan dari Uplink",
+                'name' => $user->name,
                 'is_single_use' => true,
                 'expected_amount' => $cart->grand_total,
                 'suggested_amount' => $cart->grand_total,

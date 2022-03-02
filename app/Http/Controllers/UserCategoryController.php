@@ -14,6 +14,7 @@ class UserCategoryController extends Controller
         $categories = "";
         $availableRelation = ['links','events','digital_products','digital_products.images'];
         $with = $request->with;
+        $search = $request->search;
         $token = $request->token;
         
         if ($id == null) {
@@ -37,6 +38,21 @@ class UserCategoryController extends Controller
                 $categoryQuery = UserCategory::where('user_id', $request->user_id);
                 if ($with != "") {
                     $categoryQuery = $categoryQuery->with($with);
+                    if ($search != "") {
+                        $colName = [
+                            'links' => 'title','events' => 'title','videos' => 'title',
+                            'digital_products' => 'name','supports' => 'stuff'
+                        ];
+                        $mainRel = explode(".", $with)[0];
+                        if (!isset($mainRel[1])) {
+                            $categoryQuery = $categoryQuery->whereHas($with, function ($query) use ($search, $colName, $with) {
+                                $query->where($colName[$with], 'LIKE', "%".$search."%");
+                            });
+                        } else {
+                            // 
+                        }
+                        Log::info($categoryQuery->toSql());
+                    }
                 }
                 $categories = $categoryQuery->get();
             }

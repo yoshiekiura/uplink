@@ -18,6 +18,7 @@ class UpdateVisitorOrdersTable extends Migration
             $table->foreign('voucher_id')->references('id')->on('user_vouchers')->onDelete('cascade');
             $table->string('payment_reference_id')->nullable()->after('payment_status');
             $table->string('payment_external_id')->nullable()->after('payment_status');
+            $table->string('payment_id')->nullable()->after('payment_evidence');
         });
     }
 
