@@ -58,8 +58,8 @@ class DigitalProductController extends Controller
             'data' => $saveData
         ]);
     }
-    public function delete() {
-        $data = DigitalProduct::where('id', $id)->with('images');
+    public function delete(Request $request) {
+        $data = DigitalProduct::where('id', $request->id)->with('images');
         $product = $data->first();
         $deleteData = $data->delete();
 
@@ -79,5 +79,12 @@ class DigitalProductController extends Controller
             'status' => 200,
             'data' => $data
         ]);
+    }
+    public function removeImage($imageID) {
+        $data = DigitalProductImage::where('id', $imageID);
+        $image = $data->first();
+        $deleteData = $data->delete();
+        $deleteFile = Storage::delete('public/digital_product_images/' . $image->filename);
+        return response()->json(['status' => 200]);
     }
 }

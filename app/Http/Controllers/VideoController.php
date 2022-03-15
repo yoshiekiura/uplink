@@ -46,10 +46,7 @@ class VideoController extends Controller
         $title = preg_match('/<title[^>]*>(.*?)<\/title>/ims', $page, $match) ? $match[1] : null;
         return $title;
     }
-    public function store(Request $request) {
-        $user = UserController::get($request->token)->first();
-
-        $url = $request->url;
+    public function parseVideoUrl($url) {
         if (strpos($url, "youtu") !== false) {
             $type = "youtube";
             $title = self::getTitle($url);
@@ -58,6 +55,20 @@ class VideoController extends Controller
             $type = "tiktok";
             $title = "TikTok Video";
         } else {
+            $type = $title = "failed";
+        }
+
+        return [
+            'type' => $type,
+            'title' => $title,
+        ];
+    }
+    public function store(Request $request) {
+        $user = UserController::get($request->token)->first();
+
+        $url = $request->url;
+        $parse = $this->parseVideoUrl($url);
+        if ($parse['url'] == 'failed' || $type == 'failed') {
             return response()->json([
                 'status' => 501,
 				'url' => $url,
@@ -68,8 +79,8 @@ class VideoController extends Controller
         $saveData = Video::create([
             'user_id' => $user->id,
             'url' => $url,
-            'title' => $title,
-            'type' => $type,
+            'title' => $parse['title'],
+            'type' => $parse['type'],
             'priority' => 0,
             'play_count' => 0
         ]);
@@ -102,6 +113,31 @@ class VideoController extends Controller
         return response()->json([
             'status' => 200,
             'message' => "Berhasil mengubah priority video"
+        ]);
+    }
+    public function update($id, Request $request) {
+        $url = $request->url;
+        $parse = $this->parseVideoUrl($url);
+
+        if ($parse['url'] == 'failed' || $type == 'failed') {
+            return response()->json([
+                'status' => 501,
+				'url' => $url,
+                'message' => "URL bukan dari Youtube maupun TikTok"
+            ]);
+        }
+
+        $data = Video::where('id', $id);
+        
+        $updateData = $data->update([
+            'url' => $url,
+            'title' => $parse['title'],
+            'type' => $parse['type'],
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Berhasil mengubah URL video"
         ]);
     }
 }

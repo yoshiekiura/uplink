@@ -50,10 +50,12 @@ class VoucherController extends Controller
     }
     public function apply(Request $request) {
         $code = $request->code;
-        $voucher = Voucher::where([
+        $query = Voucher::where([
             ['code', $code],
+            ['expiration', '>=', date('Y-m-d')],
             ['user_id', $request->user_id]
-        ])->orderBy('created_at', 'DESC')->first();
+        ])->orderBy('created_at', 'DESC');
+        $voucher = $query->first();
         
         $statusCode = $voucher != "" ? 200 : 404;
 
@@ -78,6 +80,8 @@ class VoucherController extends Controller
 
         return response()->json([
             'status' => $statusCode,
+            'voucher' => $voucher,
+            'query' => $query->getBindings()
         ]);
     }
     public function remove(Request $request) {

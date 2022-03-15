@@ -3,13 +3,18 @@
 namespace App\Http\Controllers;
 
 use Str;
+use Mail;
 use Carbon\Carbon;
 use App\Models\Visitor;
 use App\Models\VisitorOrder;
 use App\Models\VisitorOrderDetail;
+use App\Models\Faq;
 use App\Models\Link;
 use App\Models\LinkStat;
 use App\Models\User;
+
+use App\Mail\PaymentComplete;
+
 use Illuminate\Http\Request;
 
 class VisitorController extends Controller
@@ -152,7 +157,7 @@ class VisitorController extends Controller
         return $data;
         // return response()->json()
     }
-    public function paymentCallbacks($channel, Request $request) {
+    public function paymentCallbacks($channel, $action = null, Request $request) {
         $amount = $request->amount;
         $referenceID = null;
         $paymentID = null;
@@ -166,7 +171,29 @@ class VisitorController extends Controller
             $cartQuery = VisitorOrder::where('payment_id', $paymentID);
         }
         
-        $updateCart = $cartQuery->update(['payment_status' => 'SUCCEEDED']);
+        if ($action == 'paid') {
+            $updateCart = $cartQuery->update(['payment_status' => 'SUCCEEDED']);
+            $cart = $cartQuery->with(['user','visitor','details'])->first();
+            $user = $cart->user;
+            $visitor = $cart->visitor;
+
+            $classToCall = CartController::$classToCall;
+            foreach ($cart->details as $item) {
+                $productType = $item->product_type;
+                $classModel = $classToCall[$productType];
+                $className = $classModel['name'];
+                $queryProduct = $className::where('id', $item->{$productType});
+                if (array_key_exists('relation', $classModel)) {
+                    $queryProduct = $queryProduct->with($classModel['relation']);
+                }
+                $item->product = $queryProduct->first();
+            }
+
+            $sendMail = Mail::to($user->name)->send(new PaymentComplete([
+                'user' => $user,
+                'cart' => $cart
+            ]));
+        }
 
         return response()->json([
             'message' => "Halo ".$channel,
@@ -192,5 +219,28 @@ class VisitorController extends Controller
             'customers' => $customers,
             'thisMonth' => $thisMonth,
         ]);
+    }
+    public function paycom() {
+        $cart = VisitorOrder::where('id', 14)->with(['user','visitor','details','voucher'])->first();
+        $classToCall = CartController::$classToCall;
+        foreach ($cart->details as $item) {
+            $productType = $item->product_type;
+            $classModel = $classToCall[$productType];
+            $className = $classModel['name'];
+            $queryProduct = $className::where('id', $item->{$productType});
+            if (array_key_exists('relation', $classModel)) {
+                $queryProduct = $queryProduct->with($classModel['relation']);
+            }
+            $item->product = $queryProduct->first();
+        }
+        
+        return new PaymentComplete([
+            'cart' => $cart,
+            'classToCall' => $classToCall
+        ]);
+    }
+    public function faq() {
+        $faqs = Faq::orderBy('updated_at', 'DESC')->get();
+        return response()->json($faqs);
     }
 }

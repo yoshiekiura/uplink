@@ -13,12 +13,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('tes', function () {
-    $phone = "0881036183076";
-    $countryCode = "+62";
-    $converted = preg_replace('/^0/', $countryCode, $phone);
-    return $converted;
+Route::group(['prefix' => "mail"], function () {
+    Route::get('paycom', 'VisitorController@paycom');
+    Route::get('otp', function () {
+        return new App\Mail\OtpMailer();
+    });
 });
+
+Route::get('tes', "UserController@tes");
 
 Route::get('link/{id}', "VisitorController@visitLink");
 

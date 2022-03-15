@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use DB;
 use Log;
 use Str;
+use \Carbon\Carbon;
 use Xendit\Xendit as Xendit;
 use Illuminate\Http\Request;
 
@@ -19,16 +20,19 @@ class CartController extends Controller
 {
     public static $classToCall = [
         'event' => [
-            'name' => '\App\Models\Event'
+            'name' => '\App\Models\Event',
+            'name_column' => 'title',
         ],
         'digital_product' => [
             'name' => '\App\Models\DigitalProduct',
             'relation' => 'images',
             'price_column' => 'price',
+            'name_column' => 'name',
         ],
         'support' => [
             'name' => '\App\Models\Support',
             'price_column' => 'price_unit',
+            'name_column' => 'stuff',
         ]
     ];
     public function get(Request $request) {
@@ -207,11 +211,14 @@ class CartController extends Controller
         $user = $cart->user;
         $referenceID = "UPLNK_".$cart->invoice_number;
         $externalID = 'uplink-'.$cart->invoice_number;
+        $name = preg_replace('/[^A-Za-z0-9\-]/', ' ', $user->name);
 
         $channelCode = $request->channel;
         $paymentMethod = $request->payment_method;
 
-        Xendit::setApiKey(env('XENDIT_SECRET_KEY'));
+        $secretKey = env('XENDIT_MODE') == 'sandbox' ? env('XENDIT_SECRET_KEY_SANDBOX') : env('XENDIT_SECRET_KEY');
+
+        Xendit::setApiKey($secretKey);
         if ($paymentMethod == 'ewallets') {
             $channelName = explode("id_", $channelCode)[1];
             $args = [
@@ -232,13 +239,15 @@ class CartController extends Controller
             $makePayment = \Xendit\EWallets::createEWalletCharge($args);
         } else if ($paymentMethod == 'virtual_account') {
             $channelName = explode("fva_", $channelCode)[1];
+            $expirationDate = Carbon::now()->addHours(8)->toISO8601String();
             $args = [
                 'external_id' => $externalID,
                 'bank_code' => strtoupper($channelName),
-                'name' => $user->name,
+                'name' => $name,
                 'is_single_use' => true,
                 'expected_amount' => $cart->grand_total,
                 'suggested_amount' => $cart->grand_total,
+                'expiration_date' => $expirationDate
             ];
             $makePayment = \Xendit\VirtualAccounts::create($args);
         }
@@ -263,8 +272,9 @@ class CartController extends Controller
     public function paymentStatus($id, Request $request) {
         $cartQuery = VisitorOrder::where('id', $id);
         $cart = $cartQuery->first();
+        $secretKey = env('XENDIT_MODE') == 'sandbox' ? env('XENDIT_SECRET_KEY_SANDBOX') : env('XENDIT_SECRET_KEY');
 
-        Xendit::setApiKey(env('XENDIT_SECRET_KEY'));
+        Xendit::setApiKey($secretKey);
         if ($cart->payment_id != null) {
             $payment = \Xendit\VirtualAccounts::retrieve($cart->payment_id);
         }
@@ -274,5 +284,12 @@ class CartController extends Controller
             'cart' => $cart,
             'payment' => $payment,
         ]);
+    }
+    public function setVoucherNull(Request $request) {
+        $data = VisitorOrder::where('id', $request->id);
+        $updateOrder = $data->update([
+            'voucher_id' => null,
+        ]);
+        return response()->json(['status' => 200]);
     }
 }

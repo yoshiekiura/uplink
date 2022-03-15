@@ -96,4 +96,20 @@ class SupportController extends Controller
             'message' => "Berhasil menghapus item support"
         ]);
     }
+    public function update($id, Request $request) {
+        $data = Support::where('id', $id);
+        $support = $data->first();
+        $updateData = $data->update([
+            'stuff' => $request->stuff,
+            'price_unit' => $request->price_unit,
+            'description' => $request->description,
+            'custom_message' => $request->custom_message,
+            'button_text' => $request->button_text,
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Berhasil mengubah data support"
+        ]);
+    }
 }

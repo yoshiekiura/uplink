@@ -12,4 +12,8 @@ class Video extends Model
     protected $fillable = [
         'user_id','url','type','play_count','title','priority'
     ];
+
+    public function user() {
+        return $this->belongsTo('App\Models\User', 'user_id');
+    }
 }

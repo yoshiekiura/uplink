@@ -49,5 +49,8 @@ class User extends Authenticatable
     public function site() {
         return $this->hasOne('App\Models\UserSite', 'user_id');
     }
+    public function premium() {
+        return $this->hasOne('App\Models\UserPremium', 'user_id')->latest();
+    }
 
 }

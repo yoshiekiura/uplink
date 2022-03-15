@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class OtpMailer extends Mailable
+class RegisterByWeb extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -16,13 +16,12 @@ class OtpMailer extends Mailable
      *
      * @return void
      */
-    public $user = null;
-    public $otp = null;
 
-    public function __construct()
+    public $user;
+
+    public function __construct($props)
     {
-        // $this->user = $props['user'];
-        // $this->otp = $props['otp'];
+        $this->user = $props['user'];
     }
 
     /**
@@ -32,9 +31,10 @@ class OtpMailer extends Mailable
      */
     public function build()
     {
-        return $this->subject('One Time Password - Uplink.id')->view('emails.otp', [
-            'user' => $this->user,
-            'otp' => $this->otp,
+        $user = $this->user;
+        return $this->subject('Selamat datang di Uplink, ' . $user->username)
+        ->view('emails.registerByWeb', [
+            'user' => $user
         ]);
     }
 }

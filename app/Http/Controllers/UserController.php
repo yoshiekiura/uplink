@@ -5,11 +5,16 @@ namespace App\Http\Controllers;
 use Str;
 use Auth;
 use Hash;
+use Mail;
 use Storage;
 use Validator;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\UserSite;
+use App\Models\UserPremium;
 use App\Models\VisitorOrder;
+use App\Mail\RegisterByWeb;
+use App\Mail\PaymentComplete;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -29,7 +34,8 @@ class UserController extends Controller
         $token = $request->token;
         $data = User::where('token', $token);
         if ($request->with != "") {
-            $data = $data->with($request->with);
+            $relations = explode(",", $request->with);
+            $data = $data->with($relations);
         }
         $user = $data->first();
         if ($user != "") {
@@ -86,6 +92,54 @@ class UserController extends Controller
             'message' => "Login berhasil",
             'data' => $user,
         ]);
+    }
+    public function signup($props) {
+        $phone = array_key_exists('phone', $props) ? $props['phone'] : null;
+        $saveData = User::create([
+            'name' => $props['name'],
+            'username' => $props['username'],
+            'email' => $props['email'],
+            'bio' => "I just found this wonderful app",
+            'password' => bcrypt($props['password']),
+            'phone' => $phone,
+            'icon' => "default",
+            'background_image' => "default",
+        ]);
+
+        $saveSettings = UserSite::create([
+            'user_id' => $saveData->id,
+            'seo_title' => $name . " - Uplink.id",
+            'seo_description' => $bio
+        ]);
+
+        return $saveData;
+    }
+    public function webRegister(Request $request) {
+        $username = $request->username;
+        $email = $request->email;
+        $name = $username;
+        $registering = $this->signup([
+            'name' => $name,
+            'username' => $username,
+            'email' => $email,
+            'password' => $request->password,
+        ]);
+        
+        $sendEmail = Mail::to($email)->send(new RegisterByWeb([
+            'user' => $registering
+        ]));
+
+        return response()->json([
+            'status' => 200,
+        ]);
+    }
+    public function usernameCheck(Request $request) {
+        $res['status'] = 200;
+        $users = User::where('username', $request->username)->get()->count();
+        if ($users > 0) {
+            $res['status'] = 500;
+        }
+        return response()->json($res);
     }
     public function register(Request $request) {
         $customMessagesValidator = [
@@ -228,5 +282,52 @@ class UserController extends Controller
     public function getBank(Request $request) {
         $token = $request->token;
         $user = self::get($token)->first();
+    }
+    public function saveSite(Request $request) {
+        $token = $request->token;
+        $user = UserController::get($token)->first('id');
+        $updateSettings = UserSite::where('user_id', $user->id)->update([
+            'seo_title' => $request->seo_title,
+            'seo_description' => $request->seo_description,
+            'analytics_tracking_id' => $request->analytics_tracking_id,
+            'pixel_tracking_id' => $request->pixel_tracking_id,
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Pengaturan baru berhasil disimpan"
+        ]);
+    }
+    public function getPremium(Request $request) {
+        $token = $request->token;
+        $user = UserController::get($token)->with('premium')->first();
+        $now = Carbon::now();
+
+        if ($user->premium != null) {
+            $activeUntil = Carbon::parse($user->premium->active_until);
+            $startDate = $now <= $activeUntil ? $activeUntil : $now;
+        } else {
+            $startDate = $now;
+        }
+        $monthQuantity = $request->plan == 'monthly' ? 1 : 12;
+        $newExpiration = $startDate->addMonths($monthQuantity);
+
+        $savePremium = UserPremium::create([
+            'user_id' => $user->id,
+            'active_until' => $newExpiration,
+            'month_quantity' => $monthQuantity,
+            'payment_amount' => 100,
+            'payment_status' => 'success',
+            'payment_method' => 'bri'
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Pengaturan baru berhasil disimpan"
+        ]);
+    }
+    public function tes() {
+        // return 
+        $sendMail = Mail::to('riyan.satria.619@gmail.com')->send(new PaymentComplete());
     }
 }
