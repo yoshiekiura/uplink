@@ -21,8 +21,8 @@ class OtpMailer extends Mailable
 
     public function __construct()
     {
-        // $this->user = $props['user'];
-        // $this->otp = $props['otp'];
+        $this->user = $props['user'];
+        $this->otp = $props['otp'];
     }
 
     /**
