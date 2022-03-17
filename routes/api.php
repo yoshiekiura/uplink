@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => "user"], function () {
     Route::post('login', "UserController@login")->name("user.login");
     Route::post('register', "UserController@register")->name("user.register");
+    Route::post('web-register', "UserController@webRegister");
     Route::post('register-completion', "UserController@registerCompletion")->name("user.register.completion");
     Route::post('logout', "UserController@logout")->name("user.logout")->middleware('User');
     Route::post('forgot-password', "UserController@forgotPassword")->name("user.forgotPassword");

@@ -95,11 +95,12 @@ class UserController extends Controller
     }
     public function signup($props) {
         $phone = array_key_exists('phone', $props) ? $props['phone'] : null;
+        $bio = "I just found this wonderful app";
         $saveData = User::create([
             'name' => $props['name'],
             'username' => $props['username'],
             'email' => $props['email'],
-            'bio' => "I just found this wonderful app",
+            'bio' => $bio,
             'password' => bcrypt($props['password']),
             'phone' => $phone,
             'icon' => "default",
@@ -108,7 +109,7 @@ class UserController extends Controller
 
         $saveSettings = UserSite::create([
             'user_id' => $saveData->id,
-            'seo_title' => $name . " - Uplink.id",
+            'seo_title' => $props['name'] . " - Uplink.id",
             'seo_description' => $bio
         ]);
 
@@ -125,9 +126,7 @@ class UserController extends Controller
             'password' => $request->password,
         ]);
         
-        $sendEmail = Mail::to($email)->send(new RegisterByWeb([
-            'user' => $registering
-        ]));
+        $sendEmail = Mail::to($email)->send(new RegisterByWeb($registering));
 
         return response()->json([
             'status' => 200,

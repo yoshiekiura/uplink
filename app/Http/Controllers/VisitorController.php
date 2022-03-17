@@ -243,4 +243,8 @@ class VisitorController extends Controller
         $faqs = Faq::orderBy('updated_at', 'DESC')->get();
         return response()->json($faqs);
     }
+    public function webreg() {
+        $user = UserController::getByID(19)->first();
+        return new \App\Mail\RegisterByWeb($user);
+    }
 }

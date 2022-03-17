@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => "mail"], function () {
     Route::get('paycom', 'VisitorController@paycom');
+    Route::get('webreg', 'VisitorController@webreg');
     Route::get('otp', function () {
         return new App\Mail\OtpMailer();
     });

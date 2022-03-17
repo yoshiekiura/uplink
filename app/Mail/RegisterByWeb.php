@@ -21,7 +21,7 @@ class RegisterByWeb extends Mailable
 
     public function __construct($props)
     {
-        $this->user = $props['user'];
+        $this->user = $props;
     }
 
     /**
@@ -33,7 +33,7 @@ class RegisterByWeb extends Mailable
     {
         $user = $this->user;
         return $this->subject('Selamat datang di Uplink, ' . $user->username)
-        ->view('emails.registerByWeb', [
+        ->view('emails.RegisterByWeb', [
             'user' => $user
         ]);
     }
