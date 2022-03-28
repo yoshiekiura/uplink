@@ -46,7 +46,10 @@ class WithdrawController extends Controller
         $makeDisbursement = \Xendit\Disbursements::create([
             'external_id' => $externalID,
             'amount' => $request->amount,
+            // 'amount' => 500,
             'bank_code' => strtoupper($bank->bank_name),
+            'account_holder_name' => $bank->name,
+            'account_number' => $bank->number,
         ]);
 
         return response()->json([

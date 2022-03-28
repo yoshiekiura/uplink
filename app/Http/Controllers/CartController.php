@@ -22,6 +22,7 @@ class CartController extends Controller
         'event' => [
             'name' => '\App\Models\Event',
             'name_column' => 'title',
+            'price_column' => 'price',
         ],
         'digital_product' => [
             'name' => '\App\Models\DigitalProduct',
@@ -94,8 +95,8 @@ class CartController extends Controller
                 'visitor_id' => $visitor->id,
                 'user_id' => $user->id,
                 'invoice_number' => $invNumber,
-                'total' => $request->item_price,
-                'grand_total' => $request->item_price,
+                'total' => $request->item_price * $quantity,
+                'grand_total' => $request->item_price * $quantity,
                 'is_placed' => 0,
                 'has_withdrawn' => 0
             ]);
@@ -104,7 +105,7 @@ class CartController extends Controller
             $detailToSave['product_type'] = $itemType;
             $detailToSave[$itemType] = $itemID;
             $detailToSave['quantity'] = $quantity;
-            $detailToSave['total_price'] = $request->item_price;
+            $detailToSave['total_price'] = $request->item_price * $quantity;
             $saveDetail = VisitorOrderDetail::create($detailToSave);
 
             return response()->json([

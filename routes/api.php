@@ -69,7 +69,7 @@ Route::group(['prefix' => "support"], function () {
 });
 
 Route::group(['prefix' => "callbacks"], function () {
-    Route::post('{channel}/{action?}', "VisitorController@paymentCallbacks");
+    Route::get('{channel}/{action?}', "VisitorController@paymentCallbacks");
 });
 Route::group(['prefix' => "sales"], function () {
     Route::post('/', "SalesController@get");

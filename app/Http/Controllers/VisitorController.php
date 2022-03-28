@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Str;
+use Log;
 use Mail;
 use Carbon\Carbon;
 use App\Models\Visitor;
@@ -13,7 +14,10 @@ use App\Models\Link;
 use App\Models\LinkStat;
 use App\Models\User;
 
+use App\Mail\EventReceipt;
+use App\Mail\SupportReceipt;
 use App\Mail\PaymentComplete;
+use App\Mail\DigitalProductReceipt;
 
 use Illuminate\Http\Request;
 
@@ -109,7 +113,7 @@ class VisitorController extends Controller
         $visitor = $data->first();
         $updateData = $data->update([
             'name' => $request->name,
-            'phone' => $request->phone,
+            'email' => $request->email,
             'address' => $request->address,
         ]);
         
@@ -167,10 +171,12 @@ class VisitorController extends Controller
             $referenceID = $data['reference_id'];
             $cartQuery = VisitorOrder::where('payment_reference_id', $referenceID);
         } else if ($channel == 'fva') {
-            $paymentID = $request->payment_id;
+            // $paymentID = $request->payment_id;
+            $paymentID = "6239f8b6ac916538129aa24f";
             $cartQuery = VisitorOrder::where('payment_id', $paymentID);
         }
         
+        $productQueue = [];
         if ($action == 'paid') {
             $updateCart = $cartQuery->update(['payment_status' => 'SUCCEEDED']);
             $cart = $cartQuery->with(['user','visitor','details'])->first();
@@ -186,13 +192,21 @@ class VisitorController extends Controller
                 if (array_key_exists('relation', $classModel)) {
                     $queryProduct = $queryProduct->with($classModel['relation']);
                 }
-                $item->product = $queryProduct->first();
+                $product = $queryProduct->first();
+                array_push($productQueue, [
+                    'id' => $item->id,
+                    'product' => $product
+                ]);
+                $item->product = $product;
             }
 
-            $sendMail = Mail::to($user->name)->send(new PaymentComplete([
+            $sendMail = Mail::to($user->email)->send(new PaymentComplete([
                 'user' => $user,
-                'cart' => $cart
+                'cart' => $cart,
+                'classToCall' => CartController::$classToCall
             ]));
+
+            $sendMailDetail = $this->sendMailDetail($productQueue);
         }
 
         return response()->json([
@@ -200,6 +214,39 @@ class VisitorController extends Controller
             'reference_id' => $referenceID,
             'payment_id' => $paymentID
         ]);
+    }
+    public function sendMailDetail($queue) {
+        foreach ($queue as $i => $item) {
+            $query = VisitorOrderDetail::where('id', $item['id']);
+            $detail = $query->with(['order.visitor','order.user'])->first();
+            $visitor = $detail->order->visitor;
+            $user = $detail->order->user;
+
+            if ($detail->product_type == 'event') {
+                $event = EventController::getByID($detail->event, true);
+                $sendReceipt = Mail::to($visitor->email)->send(new EventReceipt([
+                    'event' => $event,
+                    'visitor' => $visitor,
+                    'user' => $user,
+                ]));
+            } else if ($detail->product_type == 'digital_product') {
+                $product = DigitalProductController::getByID($detail->digital_product, true);
+                $sendReceipt = Mail::to($visitor->email)->send(new DigitalProductReceipt([
+                    'prduct' => $prduct,
+                    'user' => $user,
+                    'visitor' => $visitor,
+                ]));
+            } else if ($detail->product_type == 'support') {
+                $support = SupportController::getByID($detail->support, true);
+                $sendReceipt = Mail::to($visitor->email)->send(new SupportReceipt([
+                    'support' => $support,
+                    'visitor' => $visitor,
+                    'user' => $user,
+                ]));
+            }
+
+            Log::info('detail : ' . json_encode($detail));
+        }
     }
     public function statistic(Request $request) {
         $token = $request->token;

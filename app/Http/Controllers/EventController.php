@@ -12,8 +12,11 @@ class EventController extends Controller
     public function get(Request $request, $categoryID = null) {
         $token = $request->token;
     }
-    public function getByID($id) {
-        $event = Event::where('id', $id)->first();
+    public function getByID($id, $directReturn = false) {
+        $event = Event::where('id', $id)->with('user')->first();
+        if ($directReturn) {
+            return $event;
+        }
         return response()->json([
             'status' => 200,
             'message' => "Berhasil mengambil data event",

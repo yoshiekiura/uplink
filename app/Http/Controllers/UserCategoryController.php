@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Log;
 use Validator;
+use \Carbon\Carbon;
 use App\Models\User;
 use App\Models\UserCategory;
 use Illuminate\Http\Request;
@@ -16,6 +17,13 @@ class UserCategoryController extends Controller
         $with = $request->with;
         $search = $request->search;
         $token = $request->token;
+        $showWithExpired = false;
+
+        if ($request->with == 'events') {
+            if ($request->showWithExpired != "") {
+                $showWithExpired = true;
+            }
+        }
         
         if ($id == null) {
             if ($with != "") {
@@ -32,12 +40,25 @@ class UserCategoryController extends Controller
                 if ($with != "") {
                     $relation .= ".".$with;
                 }
-                $user = User::where('token', $token)->with($relation)->first();
+                $data = User::where('token', $token)->with($relation);
+                if ($request->with == 'events' && !$showWithExpired) {
+                    $now = Carbon::now();
+                    $data = $data->whereHas('events', function ($query) use($now) {
+                        $query->where('date', '>=', $now);
+                    });
+                }
+                $user = $data->first();;
                 $categories = $user->user_categories;
             } else if ($request->user_id != "") {
                 $categoryQuery = UserCategory::where('user_id', $request->user_id);
                 if ($with != "") {
                     $categoryQuery = $categoryQuery->with($with);
+                    if ($with == 'events' && !$showWithExpired) {
+                        $now = Carbon::now();
+                        $categoryQuery = $categoryQuery->whereHas('events', function ($query) use($now) {
+                            $query->where('date', '>=', $now);
+                        });
+                    }
                     if ($search != "") {
                         $colName = [
                             'links' => 'title','events' => 'title','videos' => 'title',
@@ -51,7 +72,7 @@ class UserCategoryController extends Controller
                         } else {
                             // 
                         }
-                        Log::info($categoryQuery->toSql());
+                        // Log::info($categoryQuery->toSql());
                     }
                 }
                 $categories = $categoryQuery->get();

@@ -72,8 +72,11 @@ class DigitalProductController extends Controller
             'message' => "Berhasil menghapus produk ".$product->name
         ]);
     }
-    public function getByID($id) {
+    public function getByID($id, $directReturn = false) {
         $data = DigitalProduct::where('id', $id)->with('images')->first();
+        if ($directReturn) {
+            return $data;
+        }
 
         return response()->json([
             'status' => 200,

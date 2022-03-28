@@ -28,4 +28,7 @@ class VisitorOrderDetail extends Model
     public function support_item() {
         return $this->belongsTo('App\Models\Support', 'support');
     }
+    public function order() {
+        return $this->belongsTo('App\Models\VisitorOrder', 'order_id');
+    }
 }

@@ -29,8 +29,12 @@ class SupportController extends Controller
             'datas' => $datas
         ]);
     }
-    public function getByID($itemID) {
+    public function getByID($itemID, $directReturn = false) {
         $data = Support::where('id', $itemID)->first();
+        if ($directReturn) {
+            return $data;
+        }
+        
         return response()->json([
             'status' => 200,
             'message' => "Berhasil mengambil data support",
