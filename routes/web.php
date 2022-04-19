@@ -19,6 +19,14 @@ Route::group(['prefix' => "mail"], function () {
     Route::get('otp', function () {
         return new App\Mail\OtpMailer();
     });
+    Route::get('contact', function () {
+        $admin = App\Models\Admin::where('id', 1)->first();
+        $message = App\Models\ContactMessage::where('id', 2)->first();
+        return new App\Mail\ContactMessage([
+            'admin' => $admin,
+            'data' => $message,
+        ]);
+    });
 });
 
 Route::get('tes', "UserController@tes");

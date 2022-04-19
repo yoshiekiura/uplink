@@ -7,14 +7,18 @@ use Auth;
 use Hash;
 use Mail;
 use Storage;
+use Redirect;
 use Validator;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\UserSite;
+use App\Models\Admin;
 use App\Models\UserPremium;
-use App\Models\VisitorOrder;
 use App\Mail\RegisterByWeb;
+use App\Models\VisitorOrder;
 use App\Mail\PaymentComplete;
+use App\Mail\ContactMessage as ContactMessageMailer;
+use App\Models\ContactMessage;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -328,5 +332,53 @@ class UserController extends Controller
     public function tes() {
         // return 
         $sendMail = Mail::to('riyan.satria.619@gmail.com')->send(new PaymentComplete());
+    }
+    public function delete($id, $referrer = NULL) {
+        $data = User::where('id', $id);
+        $user = $data->with(['events','links'])->first();
+        
+        $deleteData = $data->delete();
+        $deleteIcon = Storage::delete('public/user_icon/' . $user->icon);
+        
+        if ($user->events->count() != 0) {
+            foreach ($user->events as $event) {
+                $deleteIcon = Storage::delete('public/event_cover/' . $event->cover);
+            }
+        }
+        if ($user->links->count() != 0) {
+            foreach ($user->links as $link) {
+                $deleteIcon = Storage::delete('public/link_image/' . $link->image);
+            }
+        }
+
+        if ($referrer == "admin") {
+            // return Redirect::back()->with(['message' => "User has been deleted"]);
+            return redirect()->away('https://admin.uplink.id/user/seller');
+        }
+        return response()->json([
+            'status' => 200,
+        ]);
+    }
+    public function contact(Request $request) {
+        $saveData = ContactMessage::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'message' => $request->message,
+            'has_read' => 0,
+        ]);
+
+        $admins = Admin::get();
+        foreach ($admins as $admin) {
+            $sendToEmail = Mail::to($admin->email)->send(new ContactMessageMailer([
+                'admin' => $admin,
+                'data' => $saveData,
+            ]));
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Terima kasih telah menghubungi Uplink.id, tim kami akan segera menghubungi Anda"
+        ]);
     }
 }

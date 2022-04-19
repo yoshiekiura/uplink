@@ -12,6 +12,9 @@ Route::group(['prefix' => "user"], function () {
     Route::post('forgot-password', "UserController@forgotPassword")->name("user.forgotPassword");
     Route::post('reset-password', "UserController@resetPassword")->name("user.resetPassword");
     Route::post('username-check', "UserController@usernameCheck")->name("user.usernameCheck");
+    Route::get('{id}/delete/{referrer?}', "UserController@delete")->name('user.delete');
+
+    Route::post('contact', "UserController@contact")->name("user.contact");
 
     Route::post('me', "UserController@me")->name("user.me")->middleware('User');
     Route::post('profile/{username}', "UserController@profile")->name('user.profile');

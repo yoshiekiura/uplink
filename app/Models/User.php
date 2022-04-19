@@ -34,6 +34,9 @@ class User extends Authenticatable
     public function socials() {
         return $this->hasMany('App\Models\SocialLink', 'user_id');
     }
+    public function events() {
+        return $this->hasMany('App\Models\Event', 'user_id');
+    }
     public function links() {
         return $this->hasMany('App\Models\Link', 'user_id');
     }
