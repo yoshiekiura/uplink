@@ -44,7 +44,7 @@ class UserCategoryController extends Controller
                 if ($request->with == 'events' && !$showWithExpired) {
                     $now = Carbon::now();
                     $data = $data->whereHas('events', function ($query) use($now) {
-                        $query->where('date', '>=', $now);
+                        $query->where('date', '>=', $now->format('Y-m-d'));
                     });
                 }
                 $user = $data->first();;
