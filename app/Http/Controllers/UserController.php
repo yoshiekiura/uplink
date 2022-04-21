@@ -157,6 +157,7 @@ class UserController extends Controller
         $users = User::where('username', $request->username)->get()->count();
         if ($users > 0) {
             $res['status'] = 500;
+            $res['message'] = 'Username has already taken, please use another unique username';
         }
         return response()->json($res);
     }
