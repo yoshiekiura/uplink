@@ -120,6 +120,22 @@ class UserController extends Controller
         return $saveData;
     }
     public function webRegister(Request $request) {
+        $customMessagesValidator = [
+            'required' => ":attribute harus diisi",
+            'unique' => ":attribute telah digunakan oleh orang lain. Mohon gunakan :attribute yang berbeda",
+            'min' => ":attribute harus minimal 6 karakter"
+        ];
+
+        $validateData = Validator::make($request->all(), [
+            'email' => 'required|unique:users',
+            'username' => 'required|min:6|unique:users',
+            'password' => 'required|min:6',
+        ], $customMessagesValidator);
+
+        if ($validateData->fails()) {
+            return response()->json(['status' => 500, 'message' => $validateData->messages()]);
+        }
+        
         $username = $request->username;
         $email = $request->email;
         $name = $username;
@@ -152,11 +168,9 @@ class UserController extends Controller
         ];
 
         $validateData = Validator::make($request->all(), [
-            'name' => 'required',
             'email' => 'required|unique:users',
             'username' => 'required|min:6|unique:users',
             'password' => 'required|min:6',
-            'phone' => 'required|unique:users',
         ], $customMessagesValidator);
         
         if ($validateData->fails()) {
@@ -165,7 +179,8 @@ class UserController extends Controller
 
         $icon = "default";
         $background = "default";
-        $name = $request->name;
+        $name = explode("@", $request->email)[0];
+        $name = preg_replace('/[^A-Za-z0-9\-]/', ' ', $name);
         $bio = "I just found this wonderful app";
 
         $registering = User::create([
@@ -174,7 +189,6 @@ class UserController extends Controller
             'email' => $request->email,
             'bio' => $bio,
             'password' => bcrypt($request->password),
-            'phone' => $request->phone,
             'icon' => $icon,
             'background_image' => $background,
         ]);

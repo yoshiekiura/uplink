@@ -12,8 +12,12 @@ class EventController extends Controller
     public function get(Request $request, $categoryID = null) {
         $token = $request->token;
     }
-    public function getByID($id, $directReturn = false) {
-        $event = Event::where('id', $id)->with('user')->first();
+    public function getByID($id, $directReturn = false, Request $request) {
+        $data = Event::where('id', $id)->with('user');
+        if ($request->with != "") {
+            $data = $data->with($request->with);
+        }
+        $event = $data->first();
         if ($directReturn) {
             return $event;
         }
