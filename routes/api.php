@@ -170,4 +170,12 @@ Route::group(['prefix' => 'settings'], function() {
     Route::post('set', 'AdminController@setSettings');
 });
 
+Route::group(['prefix' => 'page'], function() {
+    Route::post('store', 'PageController@store');
+    Route::post('update', 'PageController@update');
+    Route::post('delete', 'PageController@delete');
+    Route::post('/', "PageController@all");
+    Route::post('{slug}/get', "PageController@getBySlug");
+});
+
 Route::get('faq', "VisitorController@faq");
