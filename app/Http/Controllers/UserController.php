@@ -16,6 +16,7 @@ use App\Models\Admin;
 use App\Models\UserPremium;
 use App\Mail\RegisterByWeb;
 use App\Models\VisitorOrder;
+use Xendit\Xendit as Xendit;
 use App\Mail\PaymentComplete;
 use App\Mail\ContactMessage as ContactMessageMailer;
 use App\Models\ContactMessage;
@@ -58,7 +59,11 @@ class UserController extends Controller
     public function profile($username) {
         $user = User::where('username', $username)->with('socials')->first();
         if ($user != "") {
-            $user->icon = asset('storage/user_icon/' . $user->icon);
+            if ($user->icon != "default") {
+                $user->icon = asset('storage/user_icon/' . $user->icon);
+            } else {
+                $user->icon = asset('images/default-icon.png');
+            }
         }
         
         return response()->json([
@@ -321,27 +326,65 @@ class UserController extends Controller
         $user = UserController::get($token)->with('premium')->first();
         $now = Carbon::now();
 
-        if ($user->premium != null) {
+        if ($user->premium != null && $user->premium->status == 'success') {
             $activeUntil = Carbon::parse($user->premium->active_until);
             $startDate = $now <= $activeUntil ? $activeUntil : $now;
         } else {
             $startDate = $now;
         }
         $monthQuantity = $request->plan == 'monthly' ? 1 : 12;
+        if ($request->plan == "monthly") {
+            $monthQuantity = 1;
+            $amount = 49000;
+        } else {
+            $monthQuantity = 12;
+            $amount = 450000;
+        }
         $newExpiration = $startDate->addMonths($monthQuantity);
+
+        // snap_token == external_id
+        $externalID = "upl_".time();
+
+        $secretKey = env('XENDIT_MODE') == 'sandbox' ? env('XENDIT_SECRET_KEY_SANDBOX') : env('XENDIT_SECRET_KEY');
+
+        Xendit::setApiKey($secretKey);
+        $createInvoice = \Xendit\Invoice::create([
+            'external_id' => $externalID,
+            'payer_email' => $user->email,
+            'description' => "Uplink " . $request->plan . " package",
+            'amount' => $amount,
+            'customer' => [
+                'given_names' => $user->name,
+                'email' => $user->email,
+            ],
+            'success_redirect_url' => "https://app.uplink.id/premium/done",
+        ]);
 
         $savePremium = UserPremium::create([
             'user_id' => $user->id,
+            'external_id' => $externalID,
             'active_until' => $newExpiration,
             'month_quantity' => $monthQuantity,
-            'payment_amount' => 100,
-            'payment_status' => 'success',
-            'payment_method' => 'bri'
+            'payment_amount' => $amount,
+            'payment_status' => 'pending',
+            'payment_method' => 'link',
+            'payment_link' => $createInvoice['invoice_url']
         ]);
 
         return response()->json([
             'status' => 200,
-            'message' => "Pengaturan baru berhasil disimpan"
+            'message' => "Pengaturan baru berhasil disimpan",
+            'invoice' => $createInvoice,
+        ]);
+    }
+    public function premiumCallback(Request $request) {
+        $data = UserPremium::where('external_id', $request->external_id);
+        $data->update([
+            'payment_status' => 'success'
+        ]);
+
+        return response()->json([
+            'message' => 'premium dengan external id ' . $request->external_id . " telah dibayarkan"
         ]);
     }
     public function tes() {

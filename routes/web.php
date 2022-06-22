@@ -56,3 +56,9 @@ Route::group(['prefix' => "admin"], function () {
         return redirect()->route('admin.dashboard');
     });
 });
+
+Route::group(['prefix' => "premium"], function () {
+    // app.uplink.id/premium/{orderID}
+    Route::get('{id}', "UserController@payPremium");
+    Route::get('done', "UserController@payDone")->name('payment.done');
+});

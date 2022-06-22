@@ -179,3 +179,7 @@ Route::group(['prefix' => 'page'], function() {
 });
 
 Route::get('faq', "VisitorController@faq");
+
+Route::group(['prefix' => "premium"], function () {
+    Route::post('callback', "UserController@premiumCallback");
+});
