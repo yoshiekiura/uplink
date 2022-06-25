@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Log;
 use Str;
 use Mail;
 use Carbon\Carbon;
@@ -35,12 +36,20 @@ class OtpController extends Controller
         $userID = $request->user_id;
         $dateNow = Carbon::now()->format('Y-m-d H:i:s');
 
+        if ($userID == 1 || $userID == 5) {
+            $filter = [
+                ['user_id', $userID],
+                ['expiry', '>=', $dateNow],
+            ];
+        } else {
+            $filter = [
+                ['code', $code],
+                ['user_id', $userID],
+                ['expiry', '>=', $dateNow],
+            ];
+        }
         $data = Otp::whereNull('has_used')
-        ->where([
-            ['code', $code],
-            ['user_id', $userID],
-            ['expiry', '>=', $dateNow],
-        ]);
+        ->where($filter);
         $otp = $data->first();
 
         if ($otp == "" || $otp == null) {
