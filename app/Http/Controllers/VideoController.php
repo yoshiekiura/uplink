@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Log;
 use App\Models\Video;
 use Illuminate\Http\Request;
 
@@ -68,7 +69,8 @@ class VideoController extends Controller
 
         $url = $request->url;
         $parse = $this->parseVideoUrl($url);
-        if ($parse['url'] == 'failed' || $type == 'failed') {
+        
+        if ($parse['title'] == 'failed' || $parse['type'] == 'failed') {
             return response()->json([
                 'status' => 501,
 				'url' => $url,
@@ -119,7 +121,7 @@ class VideoController extends Controller
         $url = $request->url;
         $parse = $this->parseVideoUrl($url);
 
-        if ($parse['url'] == 'failed' || $type == 'failed') {
+        if ($parse['title'] == 'failed' || $parse['type'] == 'failed') {
             return response()->json([
                 'status' => 501,
 				'url' => $url,
