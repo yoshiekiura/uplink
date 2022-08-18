@@ -43,7 +43,6 @@ class LinkController extends Controller
         $validateData = Validator::make($request->all(), [
             'title' => 'required',
             'url' => 'required',
-            'category_id' => 'required',
         ], $customMessagesValidator);
         if ($validateData->fails()) {
             return response()->json(['status' => 500, 'data' => $validateData->messages()]);
