@@ -143,6 +143,12 @@ Route::group(['prefix' => "digital-product"], function () {
     Route::post('remove-image/{imageID}', "DigitalProductController@removeImage")->middleware('User');
 });
 
+Route::group(['prefix' => "product"], function () {
+    Route::post('store', "ProductController@store")->middleware('User');
+    Route::post('{id}/delete', "ProductController@delete")->middleware('User');
+    Route::post('{id}/update', "ProductController@update")->middleware('User');
+});
+
 Route::group(['prefix' => "bank"], function () {
     Route::post('store', "BankController@store")->middleware('User');
     Route::post('update', "BankController@update")->middleware('User');

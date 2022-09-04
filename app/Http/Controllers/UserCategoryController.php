@@ -13,7 +13,7 @@ class UserCategoryController extends Controller
 {
     public function get(Request $request, $id = null) {
         $categories = "";
-        $availableRelation = ['links','events','digital_products','digital_products.images'];
+        $availableRelation = ['links','events','digital_products','digital_products.images','products.images'];
         $with = $request->with;
         $search = $request->search;
         $token = $request->token;
